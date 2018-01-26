@@ -19,15 +19,12 @@ public class UserServiceImpl implements UserService{
 	}
 	
 	@Override
-	public List<User> getAll(){
-		List<User> users = mapper.getAll();
-		
+	public List<User> getAll(){		
 		return mapper.getAll();
 	}
 	
 	@Override
 	public User getUser(String userId) {
-		System.out.println("userId: " + userId);
 		return mapper.getUser(userId);
 	}
 
