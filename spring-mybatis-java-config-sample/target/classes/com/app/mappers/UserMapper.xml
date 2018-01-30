@@ -2,7 +2,18 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.app.mappers.UserMapper">
 	<select id="getAll" resultType="com.app.entity.User">
-		SELECT user_id, user_grp, user_name FROM giis_users
+		SELECT user_id, user_grp, user_name 
+		  FROM giis_users
+	</select>
+		
+	<select id="getAll1" parameterType="map" resultType="com.app.entity.User"> 
+		SELECT total_records, user_id, user_grp, user_name
+		  FROM (SELECT a.*,
+		  			   COUNT(1) OVER() total_records,
+		  			   rownum num
+		  		  FROM (SELECT user_id, user_grp, user_name
+		  		  		  FROM giis_users) a)
+		 WHERE num BETWEEN #{start} AND #{end}
 	</select>
 	
 	<resultMap type="com.app.entity.User" id="getUserMap">

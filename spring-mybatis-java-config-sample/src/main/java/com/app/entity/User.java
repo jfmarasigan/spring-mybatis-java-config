@@ -11,6 +11,10 @@ public class User implements Serializable{
 	private Integer userGrp;
 	
 	private String userName;
+	
+	private Integer totalRecords;
+	
+	private Integer recordsFiltered;
 
 	public String getUserId() {
 		return userId;
@@ -34,6 +38,22 @@ public class User implements Serializable{
 
 	public void setUserName(String userName) {
 		this.userName = userName;
+	}
+
+	public Integer getTotalRecords() {
+		return totalRecords;
+	}
+
+	public void setTotalRecords(Integer totalRecords) {
+		this.totalRecords = totalRecords;
+	}
+
+	public Integer getRecordsFiltered() {
+		return recordsFiltered;
+	}
+
+	public void setRecordsFiltered(Integer recordsFiltered) {
+		this.recordsFiltered = recordsFiltered;
 	}
 	
 }

@@ -10,7 +10,11 @@ public interface UserService {
 
 	List<User> getAll();
 	
+	List<User> getAll1(Integer start, Integer pageLength);
+	
 	User getUser(@Param("userId") String userId);
 	
 	String getOne(@Param("userId") String userId);
+	
+	Integer getTotalRecords(List<User> users);
 }

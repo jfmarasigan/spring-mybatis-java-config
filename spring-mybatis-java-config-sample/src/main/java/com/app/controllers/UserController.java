@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.app.entity.User;
 import com.app.service.UserService;
+import com.app.tablefilters.UsersFilters;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -31,7 +32,8 @@ public class UserController {
 
 	@RequestMapping("/")
 	public String showHome() {
-		return "test";
+		System.out.println("in here");
+		return "home";
 	}
 
 	@RequestMapping("/getUser")
@@ -43,8 +45,8 @@ public class UserController {
 		User user = service.getUser(userQuery);
 		root.put("users", JSONMapper.writeValueAsString(user));
 		root.put("draw", draw);
-		root.put("recordsTotal", 1);
-		root.put("recordsFiltered", 10);
+		root.put("recordsTotal", 10);
+		root.put("recordsFiltered", 1);
 		return JSONMapper.writeValueAsString(root);
 	}
 
@@ -56,6 +58,18 @@ public class UserController {
 
 		return new ResponseEntity<String>(JSONMapper.writeValueAsString(root), HttpStatus.OK);
 	}
+	
+	@RequestMapping("/get-all")
+	public ResponseEntity<String> getAll(Integer draw, Integer start, Integer length) throws JsonProcessingException {
+		ObjectNode root = JsonNodeFactory.instance.objectNode();
+		List<User> users = service.getAll1(start + 1, length);
+		root.put("draw", draw);
+		root.put("recordsTotal", service.getTotalRecords(users));
+		root.put("recordsFiltered", service.getTotalRecords(users));
+		root.put("users", JSONMapper.writeValueAsString(users));
+		root.put("filters", JSONMapper.writeValueAsString(UsersFilters.values()));
+		return new ResponseEntity<String>(JSONMapper.writeValueAsString(root), HttpStatus.OK);
+	}
 
 	@RequestMapping("/wee")
 	public @ResponseBody String getwee() throws JsonProcessingException {
@@ -64,4 +78,5 @@ public class UserController {
 
 		return JSONMapper.writeValueAsString(root);
 	}
+
 }
