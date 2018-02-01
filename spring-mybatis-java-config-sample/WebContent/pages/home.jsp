@@ -2,8 +2,7 @@
 <html>
 	<head>
 		<title>test</title>
-		<!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-		 --><link rel="stylesheet" type="text/css" href="css/datatables.min.css">
+		<link rel="stylesheet" type="text/css" href="css/datatables.min.css">
 		<link rel="stylesheet" type="text/css" href="css/select.dataTables.min.css">
 		<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
 		<script type="text/javascript" src="js/datatables.min.js"></script>
@@ -174,7 +173,7 @@
 					</div>
 				</div>
 			</div>
-			<table id="tablesample">
+			<table id="tablesample" class="cell-border">
 				<thead>
 					<th>User ID</th>
 					<th>User Group</th>
@@ -216,7 +215,7 @@
 			type : 'GET',
 			dataType : 'json',
 			dataSrc : function(json){
-				var data = JSON.parse(json.users);
+				var data = JSON.parse(json.rows);
 				return Array.isArray(data) ? data : [data];
 			}
 		},
@@ -233,7 +232,6 @@
 		],
 		columnDefs : [
 			{className : 'dt-center', targets : [1, 2]},
-			//{orderable : false, targets: '_all'}
 			{searchable : false, targets: '_all'}
 		]
 	});

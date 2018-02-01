@@ -1,6 +1,6 @@
 /*for making the pagination input field smaller*/
 input[type="text"].paginate_input {
-	width: 40px;
+	width: 35px;
 }
 
 .dtbl-toolbar {
@@ -20,11 +20,11 @@ input[type="text"].paginate_input {
 	box-sizing: border-box;
 	border-width: 1px;
 	border-style: inset;
-	border-color: rgba(0, 0, 0, 0.1);
+	border-color: transparent;
 }
 
 .dtbl-toolbar-btn:hover {
-	
+	border-color: rgba(0, 0, 0, 0.1);
 }
 
 .dtbl-filter-btn {

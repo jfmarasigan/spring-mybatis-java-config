@@ -3,7 +3,7 @@
  */
 
 var DataTableBuilder = function (container, table) {
-    var tableObject = jQuery(table);
+    var tableObject = table ? jQuery(table) : null;
     var containerDiv = jQuery(container);
 
     // toolbar constants
@@ -63,26 +63,33 @@ var DataTableBuilder = function (container, table) {
     };
 
     var constructTable = function (tableId, columns){
-        var table = '<table id=' + tableId + '>'; 
+        var table = '<table id="' + tableId + '" class="cell-border" style="width: 100%;"><thead>'; 
         for (var idx = 0; idx < columns.length; idx++){
-            table = table + '<th>' + columns[idx].header + '</th>';
+            table = table + '<th>' + columns[idx].colHeader + '</th>';
         }
-        table += '</table>';
+        table += '</thead></table>';
 
         return table;
     };
 
     this.defaultFilters = {};
     this.addedFilters = {};
-
+    
     this.renderTable = function (parameters) {
         // create table toolbar
         var toolbarDiv = constructOptionsToolbar(parameters.options);
-        // create table
-        var table = constructTable(parameters.id, parameters.columns);
-        tableObject = tableObject === null ? jQuery('#' + parameters.id) : tableObject;
         // add toolbar to container div
-        containerDiv.append(toolbarDiv).append(table);
+        containerDiv.prepend(toolbarDiv);
+        
+        if (tableObject === null){
+        	if (!parameters.id) {
+        		throw new ReferenceError('ID should be defined if no table is used.', 'DataTableBuilder.js', 86);
+        	}
+        	var table = constructTable(parameters.id, parameters.columns);
+            containerDiv.append(table);
+            tableObject = jQuery('#' + parameters.id);            
+        }
+        
         // initialize event handlers
         this.initializeEventHandlers(parameters.options, parameters.id);
         //construct table grid
@@ -92,12 +99,16 @@ var DataTableBuilder = function (container, table) {
 
         this.setBeforeRender(parameters.beforeRender);
         this.setAfterRender(parameters.afterRender);
-        /*
+
         this.dataTableGrid = tableObject.DataTable({
             serverSide : true,
             pageLength : pLength,
             lengthChange : false,
             searching : false,
+            pagingType : 'input',
+            /*scrollX: true, //horizontal scrolling
+            scrollY : parameters.vScrollLimit ? parameters.vScrollLimit : '',
+            scrollCollapse : true,*/
             ajax : {
                 url : parameters.url,
                 data : parameters.data,
@@ -110,22 +121,22 @@ var DataTableBuilder = function (container, table) {
             columns: parameters.columns,
             columnDefs : parameters.columnDefs
         });
-
-        return this.dataTableGrid;*/
+        
+        return this.dataTableGrid;
     };
 
     this.enableRowHighlight = function(handler, enableMultiSelect){
         var util = this.dataTableGrid;
         enableMultiSelect = enableMultiSelect || false;
-        tableObject.on('click', 'tr', function(){
-            var selected = this; // this event function
-            var selectedRows = util.rows('.selected').data();
-            var selectedRowsCount = selectedRows.length;
+        tableObject.on('click', 'tr', function(p){
+        	console.log(p);
+        	var existingSelected = util.rows('.selected').data();
+            var selectedRowsCount = existingSelected.length;
             if (selectedRowsCount > 0 && !enableMultiSelect){
             	util.rows('.selected').deselect();
             }
-            jQuery(selected).toggleClass('.selected');
-            handler(selectedRows);
+            jQuery(this).toggleClass('selected');
+            if (handler) handler(util.rows('.selected').data());
         });
 
         return this.dataTableGrid;
@@ -157,14 +168,14 @@ var DataTableBuilder = function (container, table) {
             delete data.order;
             delete data.search;
 
-            if (Object.keys(util.addedFilters).length === 0 && obj.constructor === Object){
+            if (Object.keys(util.addedFilters).length === 0 && util.addedFilters.constructor === Object){
                 data = {};
                 Object.assign(data, util.defaultFilters);
             } else {
                 Object.assign(data, util.addedFilters);
             }
 
-            handler(data, e, settings);
+            if (handler) { handler(data, e, settings); }
         });
     };
 
@@ -176,7 +187,7 @@ var DataTableBuilder = function (container, table) {
                     containerDiv.find('#dtbl-filter-list').append('<option value="' + value + '">' + value.replace('_', ' ') + '</option>');
                 });
             }
-            handler(json, xhr, e, settings);
+            if (handler) { handler(json, xhr, e, settings); }
         });
     };
 
@@ -210,8 +221,9 @@ var DataTableBuilder = function (container, table) {
         }
 
         // reload event handlers
-        if (options.indexOf('reload') !== -1){
-            containerDiv.on('click', '.reload-btn', function(event) {
+        if (options.indexOf('refresh') !== -1){
+            containerDiv.on('click', '.dtbl-reload-btn', function(event) {
+            	console.log(util);
                 util.reload();
             });
         }
@@ -224,11 +236,12 @@ parameters: {
 	id : ''    				// table id
 	url : '',  				// request url
 	data : {}, 				// request parameters
-	pageLength : 10 		// number of rows per page
+	pageLength : 10 		// number of rows per page,
+	vScrollLimit: '200px'   // height in which the vertical scroll will be adjusted
 	columns : [				// column detail array of objects
 		{
 			data : '',		// name of property from json
-			header : '',    // column header / title to be used
+			colHeader : '',    // column header / title to be used
 			render : function (data, type, row){
 				// data : see above data property
 				// type :

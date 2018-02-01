@@ -20,9 +20,17 @@
 		</style>
 	</head>
 	<body>
+		<input type="hidden" id="contextPath" value="${pageContext.request.contextPath}">
 		<div id="container" style="width: 800px; height: 500px; padding: 5px; font-size: 11px; border: 1px solid black;">
-			
+			<!-- <table id="table-test">
+				<thead>
+					<th>User ID</th>
+					<th>User Group</th>
+					<th>User Name</th>
+				</thead>
+			</table> -->
 		</div>
+		<div id="text" style="border: 1px solid black;"></div>
 	</body>
 	<script type="text/javascript" src="js/util-test/util-test.js"></script>
 </html>
