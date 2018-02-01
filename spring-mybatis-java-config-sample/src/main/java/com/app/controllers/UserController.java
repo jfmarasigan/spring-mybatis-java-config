@@ -1,5 +1,6 @@
 package com.app.controllers;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,7 @@ public class UserController {
 
 	@RequestMapping("/")
 	public String showHome() {
-		System.out.println("in here");
+		System.out.println("redirected to home");
 		return "home";
 	}
 
@@ -60,9 +61,11 @@ public class UserController {
 	}
 	
 	@RequestMapping("/get-all")
-	public ResponseEntity<String> getAll(Integer draw, Integer start, Integer length) throws JsonProcessingException {
+	public ResponseEntity<String> getAll(Integer draw, Integer start, Integer length, @RequestParam("_") long t) throws JsonProcessingException {
 		ObjectNode root = JsonNodeFactory.instance.objectNode();
 		List<User> users = service.getAll1(start + 1, length);
+		System.out.println("Timestamp: " + new Timestamp(t));
+		
 		root.put("draw", draw);
 		root.put("recordsTotal", service.getTotalRecords(users));
 		root.put("recordsFiltered", service.getTotalRecords(users));
@@ -77,6 +80,12 @@ public class UserController {
 		root.put("wee", service.getOne("JDANIEL"));
 
 		return JSONMapper.writeValueAsString(root);
+	}
+	
+	@RequestMapping(value = {"/util-test"})
+	public String gotoutiltest() {
+		System.out.println("redirected to util-test");
+		return "util-test";
 	}
 
 }

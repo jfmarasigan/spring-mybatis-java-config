@@ -1,0 +1,88 @@
+/*for making the pagination input field smaller*/
+input[type="text"].paginate_input {
+	width: 40px;
+}
+
+.dtbl-toolbar {
+	height: 25px; 
+	width: 100%;
+	border: solid 1px #ccc;
+	background-color: #eee;
+	padding: 2px;
+	box-sizing: border-box;
+}
+
+.dtbl-toolbar-btn {
+	height: 98%;
+	cursor: pointer;
+	padding: 0px 5px;
+	text-align: right;
+	box-sizing: border-box;
+	border-width: 1px;
+	border-style: inset;
+	border-color: rgba(0, 0, 0, 0.1);
+}
+
+.dtbl-toolbar-btn:hover {
+	
+}
+
+.dtbl-filter-btn {
+	width: 52px;
+	float : right;
+	background: url(../images/funnel.png) left center no-repeat;
+}
+
+.dtbl-filter-btn:hover{
+	background: url(../images/funnel_red.png) left center no-repeat;
+}
+
+.dtbl-filter-menu {
+	width: 445px;
+	height: 160px;
+	background-color: #f0f0f0;
+	display: none;
+	position: relative;
+	z-index: 1;
+	top: 21px;
+	left: calc(100% - 445px);
+	margin-top: 2px;
+	border: 1px solid #456179;
+	border-radius: 3px;
+	color: #456179;
+}
+
+.dtbl-filter-menu button {
+	width: 90px;
+	position: relative; 
+	left: calc(100% - 90px);
+	border: solid 1px #2c4762;
+	color: #fff;
+	padding: 2px 3px 2px 4px;
+	border-radius: 3px;
+	background-color: #2c4762;
+}
+
+.dtbl-filter-menu button:hover {
+	background-color: #415c77;
+}
+
+.dtbl-filter-menu input[type=text], .dtbl-filter-menu select {
+	width: 142px;
+	height: 25px;
+	padding: 3px;
+	box-sizing: border-box;
+}
+
+.dtbl-filter-menu #dtbl-filter-text-list {
+	resize: none;
+	height: 35px; 
+	width: 348px;
+}
+
+.dtbl-reload-btn {
+	width: 62px;
+	float: right;
+	margin: 0 3px;
+	background: url(../images/refresh.png) left center no-repeat;
+}

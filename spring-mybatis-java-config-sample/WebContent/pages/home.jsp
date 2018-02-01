@@ -21,21 +21,24 @@
 			}
 			
 			.filter-btn {
-				position: relative;
-				left: calc(100% - 60px);
+				/* position: relative;
+				left: calc(100% - 52px);*/
+				float: right;
 				height: 98%;
-				width: 60px;
+				width: 52px;
 				cursor: pointer;
-				padding: 0px 10px;
+				padding: 0px 5px;
 				text-align: right;
 				box-sizing: border-box;
-				border: 1px solid transparent;
+				border-width: 1px;
+				border-style: inset;
+				border-color: rgba(0, 0, 0, 0.1);
 				background: url(images/funnel.png) left center no-repeat;
 			}
 			
 			.filter-btn:hover {
 				background-color: #eef;
-    			border: 1px solid #ccc;
+    			border-style: outset;
     			background: url(images/funnel_red.png) left center no-repeat;
    			}
 			
@@ -45,7 +48,8 @@
 				background-color: #f0f0f0;
 				display: none;
 				position: relative;
-				z-index: 20;
+				z-index: 1;
+				top: 21px;
 				left: calc(100% - 445px);
 				margin-top: 2px;
 				border: 1px solid #456179;
@@ -57,11 +61,16 @@
 				width: 90px;
 				position: relative; 
 				left: calc(100% - 90px);
-				border: solid 1px #2c4762;
+				border: inset 1px #2c4762;
 				color: #fff;
 				padding: 2px 3px 2px 4px;
 				border-radius: 3px;
+				background-color: #2c4762;
+			}
+			
+			.filter-menu button:hover {
 				background-color: #415c77;
+				border-style: outset;
 			}
 			
 			.filter-menu input[type=text], .filter-menu select {
@@ -78,7 +87,7 @@
 				width: 100%;
 				border: solid 1px #ccc;
 				background-color: #eee;
-				padding: 1px 0;
+				padding: 2px;
 				box-sizing: border-box;
 			}
 			
@@ -113,6 +122,10 @@
 				height: 25px;
 			}
 			
+			.modal-content-container {
+				padding: 5px;
+			}
+			
 			/* The Close Button */
 			.close {
 			    color: #aaaaaa;
@@ -121,6 +134,7 @@
 			    font-weight: bold;
 			    position: relative;
 			    top: -10px;
+			    left : calc(100% - 28px);
 			}
 			
 			.close:hover,
@@ -129,12 +143,17 @@
 			    text-decoration: none;
 			    cursor: pointer;
 			}
+			
+			input[type="text"].paginate_input {
+				width: 40px;
+			}
 		</style>
 	</head>
 	<body style="padding: 0 100px;">
 		<input type="hidden" id="contextPath" value="${pageContext.request.contextPath}">
 		<button id="click">Click me</button>
-		<div style="width: 800px; height: 500px; padding: 5px; font-size: 11px;">
+		<button id="go-to-util-test">Go to Util Test</button>
+		<div id="contanier" style="width: 800px; height: 500px; padding: 5px; font-size: 11px;">
 			<div id="options-tables" class="dtbl-options">
 				<div id="filter-btn" class="filter-btn">Filter</div>
 				<div id="filter-dropdown" class="filter-menu">
@@ -142,15 +161,15 @@
 						<label for="filter-list">Filter By: </label>
 						<select id="filter-list" style="margin-right: 20px;"></select>
 						<label for="filter-entry">Keyword: </label>
-						<input type="text" id="filter-entry">
+						<input type="text" id="filter-entry" autocomplete="off">
 					</div>
 					<div style="margin: 5px 10px; clear: both;"><button id="add-filter">Add Filter</button></div>
 					<div style="margin: 10px 10px 5px 20px;">
 						<span style="position: relative; bottom: 9px;">Filter Text: </span>
-						<textarea id="filter-text-list" style="resize: none; height: 35px; width: 348px;" readonly="readonly"></textarea>
+						<textarea id="filter-text-list" style="resize: none; height: 35px; width: 348px;" autocomplete="off" readonly></textarea>
 					</div>
 					<div style="margin: 0 10px 5px 10px;">
-						<button id="clear-filter" style="left: calc(100% - 180px);">Clear Filter</button>
+						<button id="clear-filter" style="left: calc(100% - 190px);">Clear Filter</button>
 						<button id="submit-filter" style="left: calc(100% - 180px);">Ok</button>
 					</div>
 				</div>
@@ -170,8 +189,8 @@
 <script type="text/javascript">
 	var table = $('#tablesample');
 	var newData = {};
+	var containerDiv = $('#contanier');
 	
-
 	// use this to modify the "data" / request parameters sent to the server 
 	// when rendering the table with serverSide : true
 	table.on('preXhr.dt', function(e, settings, data){
@@ -181,7 +200,7 @@
 		delete data.columns;
 		delete data.search;
 		delete data.order;
-		
+		data = {};
 		//Object.assign(data, newData);
 	});
 	
@@ -193,14 +212,11 @@
 		pagingType : 'input',
 		ajax : {
 			url : $('#contextPath').val() + '/get-all',
-			data : { userQuery : 'JDANIEL' },
+			data : { },
 			type : 'GET',
 			dataType : 'json',
 			dataSrc : function(json){
 				var data = JSON.parse(json.users);
-				/* $.each(JSON.parse(json.filters), function(index, value){
-					$('#filter-list').append('<option value="' + value + '">' + value.replace('_', ' ') + '</option>');
-				}); */
 				return Array.isArray(data) ? data : [data];
 			}
 		},
@@ -225,15 +241,21 @@
 	table.on('click', 'tr', function() {
 		$(this).toggleClass('selected');
 	}).on('xhr.dt', function(e, settings, json, xhr){
-		$.each(JSON.parse(json.filters), function(index, value){
-			$('#filter-list').append('<option value="' + value + '">' + value.replace('_', ' ') + '</option>');
-		}); 
+		if ($('#filter-list option').length === 0) {
+			$.each(JSON.parse(json.filters), function(index, value){
+				$('#filter-list').append('<option value="' + value + '">' + value.replace('_', ' ') + '</option>');
+			}); 
+		}
 	});
 	
 	$('#click').click(function(){
-		//Object.assign(tb.context[0].ajax.data, {userQuery : 'LTOLEN'});
-		//tb.draw(); //re draw the table
+		Object.assign(tb.context[0].ajax.data, {userQuery : 'LTOLEN'});
+		tb.draw(); //re draw the table
 	});	
+	
+	document.getElementById('go-to-util-test').onclick = function () {
+		window.location.href = 'util-test';
+	};
 	
 	var columns = (function (){
 		var cols = tb.context[0].aoColumns;
@@ -253,15 +275,15 @@
 	var modal = document.getElementById('myModal');
 	
 	// Get the button that opens the modal
-	var btn = document.getElementById("click");
+	//var btn = document.getElementById("click");
 	
 	// Get the <span> element that closes the modal
 	var span = document.getElementsByClassName("close")[0];
 	
 	// When the user clicks the button, open the modal 
-	btn.onclick = function() {
-	    modal.style.display = "block";
-	}
+	//btn.onclick = function() {
+	//    modal.style.display = "block";
+	//}
 	
 	// When the user clicks on <span> (x), close the modal
 	span.onclick = function() {
