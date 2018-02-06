@@ -1,7 +1,10 @@
 package com.app.controllers;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -69,7 +72,8 @@ public class UserController {
 		root.put("draw", draw);
 		root.put("recordsTotal", service.getTotalRecords(users));
 		root.put("recordsFiltered", service.getTotalRecords(users));
-		root.put("users", JSONMapper.writeValueAsString(users));
+		root.put("rows", JSONMapper.writeValueAsString(users));
+		
 		root.put("filters", JSONMapper.writeValueAsString(UsersFilters.values()));
 		return new ResponseEntity<String>(JSONMapper.writeValueAsString(root), HttpStatus.OK);
 	}
@@ -88,4 +92,9 @@ public class UserController {
 		return "util-test";
 	}
 
+	private ObjectNode getUserFilters() {
+		ObjectNode root = JsonNodeFactory.instance.objectNode();
+		
+		return root;
+	}
 }

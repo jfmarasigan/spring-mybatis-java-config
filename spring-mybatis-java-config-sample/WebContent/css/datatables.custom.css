@@ -80,6 +80,11 @@ input[type="text"].paginate_input {
 	width: 348px;
 }
 
+.dtbl-filter-menu input[type=text], .dtbl-filter-menu select, .dtbl-filter-menu textarea {
+	font-family: Segoe UI;
+	font-size: 11px;
+}
+
 .dtbl-reload-btn {
 	width: 62px;
 	float: right;

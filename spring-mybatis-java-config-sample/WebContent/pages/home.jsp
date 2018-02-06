@@ -241,7 +241,9 @@
 	}).on('xhr.dt', function(e, settings, json, xhr){
 		if ($('#filter-list option').length === 0) {
 			$.each(JSON.parse(json.filters), function(index, value){
-				$('#filter-list').append('<option value="' + value + '">' + value.replace('_', ' ') + '</option>');
+				var option = '<option value="' + value.key + '" filter-type="' + 
+					value.filterType + '">' + value.optName + '</option>';
+				$('#filter-list').append(option);
 			}); 
 		}
 	});

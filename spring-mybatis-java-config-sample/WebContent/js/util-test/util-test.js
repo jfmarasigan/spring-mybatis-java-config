@@ -23,7 +23,7 @@ testDT.renderTable({
 	columnDefs : [
 		{ className: 'dt-center', targets : [0] }
 	],
-	vScrollLimit: '200px',
+	select: 'single'
 });
 
 testDT.enableRowHighlight(function (rows){
@@ -31,5 +31,5 @@ testDT.enableRowHighlight(function (rows){
 	for (var i = 0; i < rows.length; i++){
 		text.innerHTML = JSON.stringify(rows[i]) + ' ' + '<br/>' ;
 	}
-}, false);
+});
 //});

@@ -63,7 +63,7 @@ var DataTableBuilder = function (container, table) {
     };
 
     var constructTable = function (tableId, columns){
-        var table = '<table id="' + tableId + '" class="cell-border" style="width: 100%;"><thead>'; 
+        var table = '<table id="' + tableId + '" class="cell-border compact" style="width: 100%;"><thead>'; 
         for (var idx = 0; idx < columns.length; idx++){
             table = table + '<th>' + columns[idx].colHeader + '</th>';
         }
@@ -106,9 +106,10 @@ var DataTableBuilder = function (container, table) {
             lengthChange : false,
             searching : false,
             pagingType : 'input',
-            /*scrollX: true, //horizontal scrolling
+            select: parameters.select ? parameters.select : 'single',
+            scrollX: true, //horizontal scrolling
             scrollY : parameters.vScrollLimit ? parameters.vScrollLimit : '',
-            scrollCollapse : true,*/
+            scrollCollapse : true,
             ajax : {
                 url : parameters.url,
                 data : parameters.data,
@@ -125,16 +126,9 @@ var DataTableBuilder = function (container, table) {
         return this.dataTableGrid;
     };
 
-    this.enableRowHighlight = function(handler, enableMultiSelect){
+    this.enableRowHighlight = function(handler){
         var util = this.dataTableGrid;
-        enableMultiSelect = enableMultiSelect || false;
         tableObject.on('click', 'tr', function(p){
-        	console.log(p);
-        	var existingSelected = util.rows('.selected').data();
-            var selectedRowsCount = existingSelected.length;
-            if (selectedRowsCount > 0 && !enableMultiSelect){
-            	util.rows('.selected').deselect();
-            }
             jQuery(this).toggleClass('selected');
             if (handler) handler(util.rows('.selected').data());
         });
@@ -143,13 +137,17 @@ var DataTableBuilder = function (container, table) {
     };
 
     this.enableRowSelect = function (handler){
-        tableObject.on('dblclick', 'tr', function(){
+        tableObject.on('dblclick', 'tr', function(p){
             handler();
         });
 
         return this.dataTableGrid;
     };
 
+    this.isValidFilterKeyword = function (keyword, keywordType){
+    	
+    }
+    
     this.reload = function (dataParameters) {
         if (this.dataTableGrid === null){
             throw new ReferenceError('Data table is not yet rendered', 'filename.js', 117);
@@ -181,13 +179,14 @@ var DataTableBuilder = function (container, table) {
 
     this.setAfterRender = function(handler){
         tableObject.on('xhr.dt', function(e, settings, json, xhr){
-            // if filter list has no options
             if (containerDiv.find('#dtbl-filter-list option').length === 0){
                 jQuery.each(JSON.parse(json.filters), function(index, value){
                     containerDiv.find('#dtbl-filter-list').append('<option value="' + value + '">' + value.replace('_', ' ') + '</option>');
                 });
             }
-            if (handler) { handler(json, xhr, e, settings); }
+            if (handler) { 
+            	handler(json, xhr, e, settings); 
+            }
         });
     };
 
@@ -196,34 +195,37 @@ var DataTableBuilder = function (container, table) {
             throw new TypeError('Options should be of array type', 'filename.js', 43);
         }
 
-        var util = this; // this "library"
+        var util = this;
 
-        // filter event handlers
         if (options.indexOf('filter') !== -1){
             containerDiv.on('click', '#add-filter', function(event) {
                 var filterBy = containerDiv.find('#dtbl-filter-list').val();
                 var filterKeyword = containerDiv.find('#dtbl-filter-entry').val().trim();
-                if (filterKeyword) {
+                if (filterKeyword && util.isValidFilterKeyword(filterKeyword)) {
                     containerDiv.find('#dtbl-filter-text-list')
                         .val(containerDiv.find('#dtbl-filter-text-list').val() + filterBy + '=' + filterKeyword + ';');
                     
                     util.addedFilters[filterBy] = filterKeyword;
                 }
             }).on('click', '#submit-filter', function(event) {
-                // trigger reload using filters added; if filters are empty, don't reload
-                containerDiv.find('.dtbl-filter-menu').toggle();
+                if (Object.keys(util.addedFilters).length !== 0) {
+                	util.reload(util.addedFilters);
+                }
+            	containerDiv.find('.dtbl-filter-menu').toggle();
             }).on('click', '#clear-filter', function(event) {
                 containerDiv.find('#dtbl-filter-text-list').val('');
+                containerDiv.find('#dtbl-filter-entry').val('');
+                containerDiv.find('#dtbl-filter-list').prop('selectedIndex', 0);
                 util.addedFilters = {};
             }).on('click', '.dtbl-filter-btn', function(event) {
                 containerDiv.find('.dtbl-filter-menu').toggle();
+            }).on('change', '#dtbl-filter-list', function(){
+            	containerDiv.find('#dtbl-filter-entry').val('');
             });
         }
 
-        // reload event handlers
         if (options.indexOf('refresh') !== -1){
             containerDiv.on('click', '.dtbl-reload-btn', function(event) {
-            	console.log(util);
                 util.reload();
             });
         }
@@ -251,6 +253,7 @@ parameters: {
 		{}
 	],
 	columnDefs : [], //
+	select: 'single' | 'multiple'
 	options : [filter, refresh],
 	enableMultiSelection : true | false,
 	beforeRender : function(data, e, settings){},
