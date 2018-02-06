@@ -1,20 +1,19 @@
 package com.app.service;
 
-import com.app.tablefilters.FilterTypes;
+import com.app.tablefilters.DataTableFilterTypes;
 
 public class DataTablesServiceImpl implements DataTablesService {
 
 	@Override
-	public String validate(String keyword, FilterTypes filterType) {
+	public String validate(String keyword, DataTableFilterTypes filterType) {
 		if (isEmpty(keyword) && isEmpty(filterType)) {
 			return "Please check if your keyword and/or filter is not empty.";
 		}
 		
 		String filter = filterType.toString();
-		boolean hasValidFormat = FilterTypes.NONE != filterType || keyword.matches(filterType.getRegexMatcher());
 		
-		if (!hasValidFormat) {
-			return filterType.getIsInvalidMessage();
+		if (DataTableFilterTypes.NONE != filterType && !keyword.matches(filterType.getRegexMatcher())) {
+			return filterType.getNotMatchMessage();
 		}
 		
 		if ("FORMATTED_DATE".equals(filter)) {
@@ -30,7 +29,7 @@ public class DataTablesServiceImpl implements DataTablesService {
 		return str == null || str.trim().isEmpty();
 	}
 	
-	private boolean isEmpty(FilterTypes filterType) {
+	private boolean isEmpty(DataTableFilterTypes filterType) {
 		return filterType == null;
 	}
 }

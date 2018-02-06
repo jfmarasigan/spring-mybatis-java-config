@@ -7,11 +7,13 @@ import org.junit.Test;
 
 import com.app.service.DataTablesService;
 import com.app.service.DataTablesServiceImpl;
-import com.app.tablefilters.FilterTypes;
+import com.app.tablefilters.DataTableFilterTypes;
 
 public class EmptyValuesAndNoneFilterTest {
 
 	private DataTablesService service;
+	
+	private static final String EMPTY = "Please check if your keyword and/or filter is not empty.";
 	
 	@Before
 	public void init() {
@@ -20,21 +22,21 @@ public class EmptyValuesAndNoneFilterTest {
 	
 	@Test
 	public void testNullParams() {
-		assertEquals(false, service.validate(null, null));
+		assertEquals(EMPTY, service.validate(null, null));
 	}
 	
 	@Test
 	public void testWhiteSpaceParams() {
-		assertEquals(false, service.validate(" ", null));
+		assertEquals(EMPTY, service.validate(" ", null));
 	}
 	
 	@Test
 	public void testEmptyStringParams() {
-		assertEquals(false, service.validate("", null));
+		assertEquals(EMPTY, service.validate("", null));
 	}
 	
 	@Test
 	public void testNoneFilterType() {
-		assertEquals(true, service.validate("sdfdqd239eocdn_242ewd!##$2wgef", FilterTypes.NONE));
+		assertEquals("valid", service.validate("sdfdqd239eocdn_242ewd!##$2wgef", DataTableFilterTypes.NONE));
 	}
 }

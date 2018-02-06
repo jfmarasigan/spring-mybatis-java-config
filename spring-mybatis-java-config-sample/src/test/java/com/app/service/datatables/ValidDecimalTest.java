@@ -7,11 +7,12 @@ import org.junit.Test;
 
 import com.app.service.DataTablesService;
 import com.app.service.DataTablesServiceImpl;
-import com.app.tablefilters.FilterTypes;
+import com.app.tablefilters.DataTableFilterTypes;
 
 public class ValidDecimalTest {
 	
 	private DataTablesService service;
+	private static final String INVALID_DECIMAL = "must be a decimal number";
 	
 	@Before
 	public void init() {
@@ -20,11 +21,11 @@ public class ValidDecimalTest {
 	
 	@Test
 	public void isValidDecimal() {
-		assertEquals(true, service.validate("0.2", FilterTypes.DECIMAL));
+		assertEquals("valid", service.validate("0.2", DataTableFilterTypes.DECIMAL));
 	}
 	
 	@Test
 	public void isInvalidDecimal() {
-		assertEquals(false, service.validate("1a1.2", FilterTypes.DECIMAL));
+		assertEquals(INVALID_DECIMAL, service.validate("1a1.2", DataTableFilterTypes.DECIMAL));
 	}
 }

@@ -7,7 +7,7 @@ import org.junit.Test;
 
 import com.app.service.DataTablesService;
 import com.app.service.DataTablesServiceImpl;
-import com.app.tablefilters.FilterTypes;
+import com.app.tablefilters.DataTableFilterTypes;
 
 public class ValidWholeNumber {
 	
@@ -20,27 +20,27 @@ public class ValidWholeNumber {
 	
 	@Test 
 	public void isValidWholeNumber() {
-		assertEquals(true, service.validate("22", FilterTypes.WHOLE_NUMBER));
+		assertEquals(true, service.validate("22", DataTableFilterTypes.WHOLE_NUMBER));
 	}
 	
 	@Test
 	public void isValidNegativeWholeNumber() {
-		assertEquals(true, service.validate("-22", FilterTypes.WHOLE_NUMBER));
+		assertEquals(true, service.validate("-22", DataTableFilterTypes.WHOLE_NUMBER));
 	}
 	
 	@Test
 	public void isInvalidWholeNumberWithEndingStr() {
-		assertEquals(false, service.validate("2a", FilterTypes.WHOLE_NUMBER));
+		assertEquals(false, service.validate("2a", DataTableFilterTypes.WHOLE_NUMBER));
 	}
 	
 	@Test
 	public void isInvalidWholeNumberWithStartString() {
-		assertEquals(false, service.validate("a2", FilterTypes.WHOLE_NUMBER));
+		assertEquals(false, service.validate("a2", DataTableFilterTypes.WHOLE_NUMBER));
 	}
 	
 	@Test
 	public void isInvalidWholeNumberWithStrings() {
-		assertEquals(false, service.validate("a2a", FilterTypes.WHOLE_NUMBER));
+		assertEquals(false, service.validate("a2a", DataTableFilterTypes.WHOLE_NUMBER));
 	}
 	
 	

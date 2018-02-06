@@ -1,7 +1,7 @@
 package com.app.service;
 
-import com.app.tablefilters.FilterTypes;
+import com.app.tablefilters.DataTableFilterTypes;
 
 public interface DataTablesService {
-	String validate(String keyword, FilterTypes filterType);
+	String validate(String keyword, DataTableFilterTypes filterType);
 }

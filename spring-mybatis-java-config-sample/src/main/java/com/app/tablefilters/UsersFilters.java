@@ -4,15 +4,15 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum UsersFilters {
-	USER_ID("userId", "User ID", FilterTypes.NONE),
-	USER_GRP("userGrp", "User Group", FilterTypes.NONE),
-	USER_NAME("userName", "User Name", FilterTypes.NONE);
+	USER_ID("userId", "User ID", DataTableFilterTypes.NONE),
+	USER_GRP("userGrp", "User Group", DataTableFilterTypes.NONE),
+	USER_NAME("userName", "User Name", DataTableFilterTypes.NONE);
 	
 	private String key;
 	private String optName;
-	private FilterTypes filterType;
+	private DataTableFilterTypes filterType;
 	
-	UsersFilters(String key, String optName, FilterTypes filterType) {
+	UsersFilters(String key, String optName, DataTableFilterTypes filterType) {
 		this.key = key;
 		this.optName = optName;
 		this.filterType = filterType;
@@ -26,7 +26,7 @@ public enum UsersFilters {
 		return this.optName;
 	}
 	
-	public FilterTypes getFilterType() {
+	public DataTableFilterTypes getFilterType() {
 		return this.filterType;
 	}
 }
