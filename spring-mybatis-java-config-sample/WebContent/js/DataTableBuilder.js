@@ -1,11 +1,23 @@
-/*
+/**
+ * @author daniel
+ * @param container - id of the div container
+ * @param table - optional, id of table to be used for this data table
  * requires jquery.js, datatables.js, datatables.input.js
  */
 
 var DataTableBuilder = function (container, table) {
     var tableObject = table ? jQuery(table) : null;
-    var containerDiv = jQuery(container);
+    var containerDiv = (function() {
+        if (container.charAt(0) !== '#') {
+        	container = '#' + container;
+        }        	
+        return jQuery(container);
+    })();
 
+    var util = this;
+    
+    var $qs = document.querySelector.bind(document);
+    
     // toolbar constants
     var filterBtn = '<div class="dtbl-filter-btn dtbl-toolbar-btn">Filter</div>';
     var refreshBtn = '<div class="dtbl-reload-btn dtbl-toolbar-btn">Refresh</div>';
@@ -13,22 +25,25 @@ var DataTableBuilder = function (container, table) {
     var filterMenu = '<div class="dtbl-filter-menu">' +
                          '<div style="height: 25px; width: inherit; margin: 10px 15px 10px 30px;">' + 
                              '<label for="dtbl-filter-list">Filter By: </label>' +
-                             '<select id="dtbl-filter-list" style="margin-right: 20px;"></select>' +
+                             '<select class="dtbl-filter-list" style="margin-right: 20px;"></select>' +
                              '<label for="dtbl-filter-entry">Keyword: </label>' +
-                             '<input type="text" id="dtbl-filter-entry" autocomplete="off">' +
+                             '<input type="text" class="dtbl-filter-entry" autocomplete="off">' +
                          '</div>' +
-                         '<div style="margin: 5px 10px; clear: both;"><button id="add-filter">Add Filter</button></div>'+
+                         '<div style="margin: 5px 10px; clear: both;"><button class="add-filter">Add Filter</button></div>'+
                          '<div style="margin: 10px 10px 5px 20px;">' +
-                             '<span style="position: relative; bottom: 9px;">Filter Text: </span>' +
-                             '<textarea id="dtbl-filter-text-list" autocomplete="off" readonly></textarea>' +
+                             '<span style="position: relative; bottom: 12px;">Filter Text: </span>' +
+                             '<textarea class="dtbl-filter-text-list" autocomplete="off" readonly></textarea>' +
                          '</div>' +
                          '<div style="margin: 0 10px 5px 10px;">' +
-                             '<button id="clear-filter" style="left: calc(100% - 190px);">Clear Filter</button>' + 
-                             '<button id="submit-filter" style="left: calc(100% - 180px);">Ok</button>'+
+                             '<button class="clear-filter" style="left: calc(100% - 190px);">Clear Filter</button>' + 
+                             '<button class="submit-filter" style="left: calc(100% - 180px);">Ok</button>'+
                          '</div>' +
                      '</div>';
 
-    this.dataTableGrid = null;
+    this.dataTableGrid = null;    
+    this.defaultFilters = {};
+    this.addedFilters = {};
+    this.filtersRetrieved = {};
 
     this.getTable = function (){
         return tableObject;
@@ -71,14 +86,9 @@ var DataTableBuilder = function (container, table) {
 
         return table;
     };
-
-    this.defaultFilters = {};
-    this.addedFilters = {};
     
     this.renderTable = function (parameters) {
-        // create table toolbar
         var toolbarDiv = constructOptionsToolbar(parameters.options);
-        // add toolbar to container div
         containerDiv.prepend(toolbarDiv);
         
         if (tableObject === null){
@@ -87,19 +97,18 @@ var DataTableBuilder = function (container, table) {
         	}
         	var table = constructTable(parameters.id, parameters.columns);
             containerDiv.append(table);
-            tableObject = jQuery('#' + parameters.id);            
+            tableObject = jQuery('#' + parameters.id);
         }
         
-        // initialize event handlers
         this.initializeEventHandlers(parameters.options, parameters.id);
-        //construct table grid
-        var pLength = isNaN(parseInt(parameters.pageLength)) && parseInt(parameters.pageLength) > 0 ? 10 : parameters.pageLength;
+        var paramLen = parameters.pageLength;
+        var pLength = isNaN(paramLen) && parseInt(paramLen) > 0 ? 10 : paramLen;
 
         this.defaultFilters = parameters.data;
 
         this.setBeforeRender(parameters.beforeRender);
         this.setAfterRender(parameters.afterRender);
-
+        
         this.dataTableGrid = tableObject.DataTable({
             serverSide : true,
             pageLength : pLength,
@@ -110,9 +119,13 @@ var DataTableBuilder = function (container, table) {
             scrollX: true, //horizontal scrolling
             scrollY : parameters.vScrollLimit ? parameters.vScrollLimit : '',
             scrollCollapse : true,
+            order: [], // remove default sorting
             ajax : {
                 url : parameters.url,
-                data : parameters.data,
+                data : function (d){
+                	Object.assign(d, parameters.data);
+                	return d;
+                },
                 type : 'GET',
                 dataType: 'json',
                 dataSrc : function (json){
@@ -127,13 +140,15 @@ var DataTableBuilder = function (container, table) {
     };
 
     this.enableRowHighlight = function(handler){
-        var util = this.dataTableGrid;
+        var dtblGrid = this.dataTableGrid;
         tableObject.on('click', 'tr', function(p){
             jQuery(this).toggleClass('selected');
-            if (handler) handler(util.rows('.selected').data());
+            if (handler) { 
+            	handler(dtblGrid.rows('.selected').data());
+            }
         });
 
-        return this.dataTableGrid;
+        return dtblGrid;
     };
 
     this.enableRowSelect = function (handler){
@@ -144,8 +159,36 @@ var DataTableBuilder = function (container, table) {
         return this.dataTableGrid;
     };
 
-    this.isValidFilterKeyword = function (keyword, keywordType){
-    	
+    this.addFilterToList = function (filters){
+    	this.addedFilters[filters.filterBy] = filters.filterKeyword;
+        containerDiv.find('.dtbl-filter-entry').val('');                    
+        var filterList = '';
+        for (var prop in this.addedFilters){
+        	if (this.addedFilters.hasOwnProperty(prop)){
+        		filterList = filterList + filters.filterSelected + '=' + this.addedFilters[prop] + ';'; 
+        	}
+        }
+        containerDiv.find('.dtbl-filter-text-list').val(filterList);
+    };
+    
+    this.addToListIfValidFilterValue = function (filters){
+    	//var util = this;
+    	jQuery.ajax({
+    		method : 'GET',
+    		url : 'data-tables/validate-filter',
+    		data : {
+    			filterType : filters.filterType,
+    			keyword : filters.filterKeyword
+    		},
+    		success: function (data, textStatus, jqXHR){
+    			if (data === 'valid') {
+    				util.addFilterToList(filters);
+    			} else {
+    				//show message
+    				alert('123');
+    			}
+    		}
+    	});
     }
     
     this.reload = function (dataParameters) {
@@ -160,72 +203,91 @@ var DataTableBuilder = function (container, table) {
     };
 
     this.setBeforeRender = function(handler){
-        var util = this;
+        //var util = this;
         tableObject.on('preXhr.dt', function(e, settings, data){
+        	if (data.order.length > 0) {
+	        	var colIndx = data.order[0]['column'];
+	        	var sortColumn = data.columns[colIndx]['data'];
+	        	var ascDescFlag = data.order[0]['dir'];
+	        	var sortData = {
+                    sortColumn : sortColumn || null,
+                    ascDescFlg : ascDescFlag
+                };
+                Object.assign(data, sortData);
+        	}
+        	
             delete data.columns;
             delete data.order;
             delete data.search;
-
+            
             if (Object.keys(util.addedFilters).length === 0 && util.addedFilters.constructor === Object){
-                data = {};
-                Object.assign(data, util.defaultFilters);
+            	Object.assign(data, util.defaultFilters);
             } else {
-                Object.assign(data, util.addedFilters);
+            	Object.assign(data, util.addedFilters);
             }
-
-            if (handler) { handler(data, e, settings); }
+            
+            if (handler) { 
+            	handler(data, e, settings);
+            }
         });
     };
 
     this.setAfterRender = function(handler){
-        tableObject.on('xhr.dt', function(e, settings, json, xhr){
-            if (containerDiv.find('#dtbl-filter-list option').length === 0){
-                jQuery.each(JSON.parse(json.filters), function(index, value){
-                    containerDiv.find('#dtbl-filter-list').append('<option value="' + value + '">' + value.replace('_', ' ') + '</option>');
+        tableObject.on('xhr.dt', function(e, settings, json, xhr) {
+        	util.filtersRetrieved = JSON.parse(json.filters);
+            if (containerDiv.find('.dtbl-filter-list option').length === 0) {
+                jQuery.each(util.filtersRetrieved, function(index, value) {
+                	var option = document.createElement('option');
+                    option.value = value.key;
+                    option.text = value.optName;
+                    option.setAttribute('filter-type', value.filterType);
+                    $qs(container + ' .dtbl-filter-list').appendChild(option);
                 });
             }
             if (handler) { 
-            	handler(json, xhr, e, settings); 
+            	handler(json, xhr, e, settings);
             }
         });
     };
 
-    this.initializeEventHandlers = function (options, id){
+    this.initializeEventHandlers = function (options, id){    	
         if (!Array.isArray(options)){
             throw new TypeError('Options should be of array type', 'filename.js', 43);
         }
-
-        var util = this;
+        //var util = this;
 
         if (options.indexOf('filter') !== -1){
-            containerDiv.on('click', '#add-filter', function(event) {
-                var filterBy = containerDiv.find('#dtbl-filter-list').val();
-                var filterKeyword = containerDiv.find('#dtbl-filter-entry').val().trim();
-                if (filterKeyword && util.isValidFilterKeyword(filterKeyword)) {
-                    containerDiv.find('#dtbl-filter-text-list')
-                        .val(containerDiv.find('#dtbl-filter-text-list').val() + filterBy + '=' + filterKeyword + ';');
-                    
-                    util.addedFilters[filterBy] = filterKeyword;
-                }
-            }).on('click', '#submit-filter', function(event) {
-                if (Object.keys(util.addedFilters).length !== 0) {
-                	util.reload(util.addedFilters);
-                }
+            containerDiv.on('click', '.add-filter', function(event) {
+                var filters = {
+                    filterBy : containerDiv.find('.dtbl-filter-list').val(),
+                    filterType : containerDiv.find('.dtbl-filter-list option:selected').attr('filter-type'),
+                    filterKeyword : containerDiv.find('.dtbl-filter-entry').val().trim(),
+                    filterSelected : containerDiv.find('.dtbl-filter-list option:selected').text()
+                };
+                util.addToListIfValidFilterValue(filters);
+            })
+            .on('click', '.submit-filter', function(event) {
+            	util.reload(util.addedFilters);
             	containerDiv.find('.dtbl-filter-menu').toggle();
-            }).on('click', '#clear-filter', function(event) {
-                containerDiv.find('#dtbl-filter-text-list').val('');
-                containerDiv.find('#dtbl-filter-entry').val('');
-                containerDiv.find('#dtbl-filter-list').prop('selectedIndex', 0);
+            })
+            .on('click', '.clear-filter', function(event) {
+                containerDiv.find('.dtbl-filter-text-list, .dtbl-filter-entry').val('');
+                containerDiv.find('.dtbl-filter-list').prop('selectedIndex', 0);
                 util.addedFilters = {};
-            }).on('click', '.dtbl-filter-btn', function(event) {
+            })
+            .on('click', '.dtbl-filter-btn', function(event) {
                 containerDiv.find('.dtbl-filter-menu').toggle();
-            }).on('change', '#dtbl-filter-list', function(){
-            	containerDiv.find('#dtbl-filter-entry').val('');
+            })
+            .on('change', '.dtbl-filter-list', function(){
+            	containerDiv.find('.dtbl-filter-entry').val('');
             });
         }
 
         if (options.indexOf('refresh') !== -1){
             containerDiv.on('click', '.dtbl-reload-btn', function(event) {
+            	if (containerDiv.find('.dtbl-filter-menu').length > 0) {
+            		containerDiv.find('.dtbl-filter-menu').toggle();
+            	}
                 util.reload();
             });
         }

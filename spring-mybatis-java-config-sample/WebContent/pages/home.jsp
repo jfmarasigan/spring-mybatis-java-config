@@ -173,7 +173,7 @@
 					</div>
 				</div>
 			</div>
-			<table id="tablesample" class="cell-border">
+			<table id="tablesample" class="cell-border" style="width: 100%;">
 				<thead>
 					<th>User ID</th>
 					<th>User Group</th>
@@ -196,9 +196,9 @@
 		/* newData.sortColumn = tb.context[0].aoColumns[data.order[0].column].data
 		newData.orderExp = data.order[0].dir; */
 		
-		delete data.columns;
+		/* delete data.columns;
 		delete data.search;
-		delete data.order;
+		delete data.order; */
 		data = {};
 		//Object.assign(data, newData);
 	});
@@ -209,6 +209,9 @@
 		lengthChange : false, //disable selection of number of rows per page
 		searching : false, //disable default searching
 		pagingType : 'input',
+		scrollX : true,
+		scrollY : '300px',
+        scrollCollapse : true,
 		ajax : {
 			url : $('#contextPath').val() + '/get-all',
 			data : { },
@@ -220,11 +223,11 @@
 			}
 		},
 		columns : [
-			{ data : 'userId' }, //, orderable: false },
-			{ data : 'userGrp' },
-			{ data : 'userName' },
+			{ data : 'userId' }, //, width: '300px' }, //, orderable: false },
+			{ data : 'userGrp' }, //, width: '300px' },
+			{ data : 'userName' }, //, width: '300px' },
 			{ 
-				data : 'test',
+				data : 'userId userGrp',
 				render : function (data, type, row){
 					return row.userId + ' - ' + row.userGrp;
 				}

@@ -3,6 +3,12 @@ input[type="text"].paginate_input {
 	width: 35px;
 }
 
+.dtbl-container {
+	padding: 3px;
+	box-sizing: border-box;
+	font-size: 11px;
+}
+
 .dtbl-toolbar {
 	height: 25px; 
 	width: 100%;
@@ -25,6 +31,7 @@ input[type="text"].paginate_input {
 
 .dtbl-toolbar-btn:hover {
 	border-color: rgba(0, 0, 0, 0.1);
+	background-color: #eef;
 }
 
 .dtbl-filter-btn {
@@ -74,14 +81,18 @@ input[type="text"].paginate_input {
 	box-sizing: border-box;
 }
 
-.dtbl-filter-menu #dtbl-filter-text-list {
+.dtbl-filter-menu .dtbl-filter-text-list {
 	resize: none;
 	height: 35px; 
 	width: 348px;
 }
 
+.dtbl-filter-menu label, .dtbl-filter-menu span {
+	font-family: Arial;
+}
+
 .dtbl-filter-menu input[type=text], .dtbl-filter-menu select, .dtbl-filter-menu textarea {
-	font-family: Segoe UI;
+	font-family: Verdana;
 	font-size: 11px;
 }
 

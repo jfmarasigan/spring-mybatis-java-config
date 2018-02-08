@@ -1,10 +1,7 @@
 package com.app.controllers;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -64,10 +61,11 @@ public class UserController {
 	}
 	
 	@RequestMapping("/get-all")
-	public ResponseEntity<String> getAll(Integer draw, Integer start, Integer length, @RequestParam("_") long t) throws JsonProcessingException {
+	public ResponseEntity<String> getAll(Integer draw, Integer start, Integer length, String sortColumn, String ascDescFlg) throws JsonProcessingException {
 		ObjectNode root = JsonNodeFactory.instance.objectNode();
 		List<User> users = service.getAll1(start + 1, length);
-		System.out.println("Timestamp: " + new Timestamp(t));
+		System.out.println("sortColumn: " + sortColumn);
+		System.out.println("ascDescFlg: " + ascDescFlg);
 		
 		root.put("draw", draw);
 		root.put("recordsTotal", service.getTotalRecords(users));
@@ -90,11 +88,5 @@ public class UserController {
 	public String gotoutiltest() {
 		System.out.println("redirected to util-test");
 		return "util-test";
-	}
-
-	private ObjectNode getUserFilters() {
-		ObjectNode root = JsonNodeFactory.instance.objectNode();
-		
-		return root;
 	}
 }

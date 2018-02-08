@@ -9,7 +9,7 @@ import com.app.service.DataTablesService;
 import com.app.service.DataTablesServiceImpl;
 import com.app.tablefilters.DataTableFilterTypes;
 
-public class ValidWholeNumber {
+public class ValidWholeNumberTest {
 	
 	private DataTablesService service;
 	

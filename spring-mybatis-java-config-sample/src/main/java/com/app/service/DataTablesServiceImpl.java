@@ -1,7 +1,10 @@
 package com.app.service;
 
+import org.springframework.stereotype.Service;
+
 import com.app.tablefilters.DataTableFilterTypes;
 
+@Service
 public class DataTablesServiceImpl implements DataTablesService {
 
 	@Override
@@ -9,27 +12,26 @@ public class DataTablesServiceImpl implements DataTablesService {
 		if (isEmpty(keyword) && isEmpty(filterType)) {
 			return "Please check if your keyword and/or filter is not empty.";
 		}
-		
-		String filter = filterType.toString();
-		
 		if (DataTableFilterTypes.NONE != filterType && !keyword.matches(filterType.getRegexMatcher())) {
 			return filterType.getNotMatchMessage();
+		}		
+		if (DataTableFilterTypes.FORMATTED_DATE == filterType) {
+			return new DateValidator().validate(keyword, null);
+		} else if (DataTableFilterTypes.FORMATTED_HOUR == filterType) {
+			return new HourValidator().validate(keyword);
+		} else if (DataTableFilterTypes.PERCENT == filterType) {
+			return new PercentValidator().validate(keyword);
+		} else {
+			return "valid";
 		}
-		
-		if ("FORMATTED_DATE".equals(filter)) {
-			// check if valid date value
-		} else if ("FORMATTED_HOUR".equals(filter)) {
-			// check if valid hour value
-		}
-		
-		return "valid";
 	}
 
-	private boolean isEmpty(String str) {
+	public boolean isEmpty(String str) {
 		return str == null || str.trim().isEmpty();
 	}
 	
 	private boolean isEmpty(DataTableFilterTypes filterType) {
 		return filterType == null;
 	}
+	
 }
