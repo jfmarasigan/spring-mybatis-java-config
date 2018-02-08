@@ -196,9 +196,9 @@
 		/* newData.sortColumn = tb.context[0].aoColumns[data.order[0].column].data
 		newData.orderExp = data.order[0].dir; */
 		
-		/* delete data.columns;
+		delete data.columns;
 		delete data.search;
-		delete data.order; */
+		delete data.order;
 		data = {};
 		//Object.assign(data, newData);
 	});

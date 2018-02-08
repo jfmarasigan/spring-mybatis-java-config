@@ -64,14 +64,11 @@ public class UserController {
 	public ResponseEntity<String> getAll(Integer draw, Integer start, Integer length, String sortColumn, String ascDescFlg) throws JsonProcessingException {
 		ObjectNode root = JsonNodeFactory.instance.objectNode();
 		List<User> users = service.getAll1(start + 1, length);
-		System.out.println("sortColumn: " + sortColumn);
-		System.out.println("ascDescFlg: " + ascDescFlg);
 		
 		root.put("draw", draw);
 		root.put("recordsTotal", service.getTotalRecords(users));
 		root.put("recordsFiltered", service.getTotalRecords(users));
-		root.put("rows", JSONMapper.writeValueAsString(users));
-		
+		root.put("rows", JSONMapper.writeValueAsString(users));		
 		root.put("filters", JSONMapper.writeValueAsString(UsersFilters.values()));
 		return new ResponseEntity<String>(JSONMapper.writeValueAsString(root), HttpStatus.OK);
 	}

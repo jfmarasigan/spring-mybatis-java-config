@@ -12,8 +12,11 @@
 		  			   COUNT(1) OVER() total_records,
 		  			   rownum num
 		  		  FROM (SELECT user_id, user_grp, user_name
-		  		  		  FROM giis_users) a)
+		  		  		  FROM giis_users
+		  		  		 ORDER BY ) a)
 		 WHERE num BETWEEN #{start} AND #{end}
+		<!-- SELECT * FROM TABLE (user_test111.user_test_a(#{userId}, #{userGrp}, #{userName}, #{sortColumn}, 
+				#{ascDescFlg}, #{start}, #{end})); -->
 	</select>
 	
 	<resultMap type="com.app.entity.User" id="getUserMap">
