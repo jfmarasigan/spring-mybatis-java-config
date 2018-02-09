@@ -1,13 +1,13 @@
 package com.app.service;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.app.entity.DataTableRequestParams;
 import com.app.entity.User;
+import com.app.entity.UserDTParams;
 import com.app.mappers.UserMapper;
 
 @Service
@@ -26,12 +26,12 @@ public class UserServiceImpl implements UserService{
 	}
 	
 	@Override
-	public List<User> getAll1(Integer start, Integer pageLength) {
-		Map<String, String> params = new HashMap<>();
-		params.put("start", start.toString());
+	public List<User> getAll1(UserDTParams params) {
+		/*Map<String, String> dtParams = new HashMap<>();
+		dtParams.put("start", params.getStart().toString());
 		
-		Integer end = start + pageLength;
-		params.put("end", end.toString());
+		Integer end = params.getStart() + params.getLength();
+		dtParams.put("end", end.toString());*/
 		
 		return mapper.getAll1(params);
 	}
@@ -49,7 +49,7 @@ public class UserServiceImpl implements UserService{
 
 	@Override
 	public Integer getTotalRecords(List<User> users) {
-		return users.get(1).getTotalRecords();
+		return users.size() > 0 ? users.get(0).getTotalRecords() : 0;
 	}
 
 }

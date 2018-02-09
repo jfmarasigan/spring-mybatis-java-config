@@ -31,7 +31,7 @@
 			</table> -->
 		</div>
 		<div id="text" style="border: 1px solid black; width: 800px; height: 25px; margin-bottom: 10px;"></div>
-		<div id="container2" class="dtbl-container" style="width: 800px; height: 400px;"></div>
+		<!-- <div id="container2" class="dtbl-container" style="width: 800px; height: 400px;"></div> -->
 	</body>
 	<script type="text/javascript" src="js/util-test/util-test.js"></script>
 </html>

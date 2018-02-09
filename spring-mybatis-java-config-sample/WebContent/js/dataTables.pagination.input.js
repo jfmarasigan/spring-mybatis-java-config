@@ -161,7 +161,7 @@
 				}
 
 				oSettings._iDisplayStart = iNewStart;
-				fnCallbackDraw(oSettings);
+				if (e.which === 13) fnCallbackDraw(oSettings); // daniel marasigan; added condition
 			});
 
 			// Take the brutal approach to cancelling text selection.

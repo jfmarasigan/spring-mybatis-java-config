@@ -3,6 +3,16 @@ input[type="text"].paginate_input {
 	width: 35px;
 }
 
+th {
+	border-top: 1px solid #dddddd;
+	border-bottom: 1px solid #dddddd;
+	border-right: 1px solid #dddddd;
+}
+
+th:first-child {
+	border-left: 1px solid #dddddd;
+}
+
 .dtbl-container {
 	padding: 3px;
 	box-sizing: border-box;
@@ -10,7 +20,7 @@ input[type="text"].paginate_input {
 }
 
 .dtbl-toolbar {
-	height: 25px; 
+	height: 25px;
 	width: 100%;
 	border: solid 1px #ccc;
 	background-color: #eee;
@@ -36,11 +46,13 @@ input[type="text"].paginate_input {
 
 .dtbl-filter-btn {
 	width: 52px;
-	float : right;
+	float: right;
 	background: url(../images/funnel.png) left center no-repeat;
 }
 
-.dtbl-filter-btn:hover{
+.dtbl-filter-btn-active {
+	width: 52px;
+	float: right;
 	background: url(../images/funnel_red.png) left center no-repeat;
 }
 
@@ -61,7 +73,7 @@ input[type="text"].paginate_input {
 
 .dtbl-filter-menu button {
 	width: 90px;
-	position: relative; 
+	position: relative;
 	left: calc(100% - 90px);
 	border: solid 1px #2c4762;
 	color: #fff;
@@ -83,7 +95,7 @@ input[type="text"].paginate_input {
 
 .dtbl-filter-menu .dtbl-filter-text-list {
 	resize: none;
-	height: 35px; 
+	height: 35px;
 	width: 348px;
 }
 
@@ -91,7 +103,8 @@ input[type="text"].paginate_input {
 	font-family: Arial;
 }
 
-.dtbl-filter-menu input[type=text], .dtbl-filter-menu select, .dtbl-filter-menu textarea {
+.dtbl-filter-menu input[type=text], .dtbl-filter-menu select,
+	.dtbl-filter-menu textarea {
 	font-family: Verdana;
 	font-size: 11px;
 }

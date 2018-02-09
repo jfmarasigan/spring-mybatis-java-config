@@ -1,6 +1,5 @@
 package com.app.controllers;
 
-import java.sql.Timestamp;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +10,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.app.entity.DataTableRequestParams;
 import com.app.entity.User;
+import com.app.entity.UserDTParams;
 import com.app.service.UserService;
 import com.app.tablefilters.UsersFilters;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -61,11 +62,12 @@ public class UserController {
 	}
 	
 	@RequestMapping("/get-all")
-	public ResponseEntity<String> getAll(Integer draw, Integer start, Integer length, String sortColumn, String ascDescFlg) throws JsonProcessingException {
+	public ResponseEntity<String> getAll(UserDTParams params) //(Integer draw, Integer start, Integer length, String sortColumn, String ascDescFlg) 
+			throws JsonProcessingException {
 		ObjectNode root = JsonNodeFactory.instance.objectNode();
-		List<User> users = service.getAll1(start + 1, length);
+		List<User> users = service.getAll1(params);
 		
-		root.put("draw", draw);
+		root.put("draw", params.getDraw());
 		root.put("recordsTotal", service.getTotalRecords(users));
 		root.put("recordsFiltered", service.getTotalRecords(users));
 		root.put("rows", JSONMapper.writeValueAsString(users));		

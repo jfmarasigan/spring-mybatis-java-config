@@ -15,11 +15,11 @@ testDT.renderTable({
 	columns: [
 		{ 
 			data: 'userId', 
-			colHeader : 'User ID',
+			colHeader : 'User ID'/*,
 			width: '10%',
 			render : function (data, type, row){					
 				return '<input type="checkbox" checked disabled/>';
-			}
+			}*/
 		},
 		{ data: 'userGrp', colHeader : 'User Group' },
 		{ data: 'userName', colHeader : 'User Name' },
@@ -28,7 +28,8 @@ testDT.renderTable({
 	columnDefs : [
 		{ className: 'dt-center', targets : [0] }
 	],
-	select: 'single'
+	select: 'single',
+	vScrollLimit : '270px'
 });
 
 testDT.enableRowHighlight(function (rows){
@@ -37,7 +38,7 @@ testDT.enableRowHighlight(function (rows){
 		text.innerHTML = JSON.stringify(rows[i]) + ' ' + '<br/>' ;
 	}
 });
-
+/*
 var testDT2 = new DataTableBuilder('#container2', null);
 
 testDT2.renderTable({
@@ -64,5 +65,5 @@ testDT2.renderTable({
 		{ className: 'dt-center', targets : [0] }
 	],
 	select: 'single'
-});
+});*/
 //});
