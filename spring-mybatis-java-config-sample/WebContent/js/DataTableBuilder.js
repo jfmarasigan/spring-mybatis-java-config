@@ -19,7 +19,7 @@ var DataTableBuilder = function (container, table) {
     var $qs = document.querySelector.bind(document);
     
     // toolbar constants
-    var filterBtn = '<div class="dtbl-filter-btn dtbl-toolbar-btn">Filter</div>';
+    var filterBtn = '<div class="dtbl-filter-btn dtbl-filter-btn-bg dtbl-toolbar-btn">Filter</div>';
     var refreshBtn = '<div class="dtbl-reload-btn dtbl-toolbar-btn">Refresh</div>';
 
     var filterMenu = '<div class="dtbl-filter-menu">' +
@@ -79,7 +79,7 @@ var DataTableBuilder = function (container, table) {
     
     var constructOptionsToolbar = function (options) {
         if (!Array.isArray(options)) {
-            throw new TypeError('options must be of the type array', 'filename.js', 21);
+            throw new TypeError('options must be of the type array', 'DataTableBuilder.js', 21);
         }
         if (options === null || options.length === 0){
             return '';
@@ -146,6 +146,7 @@ var DataTableBuilder = function (container, table) {
             select: parameters.select ? parameters.select : 'single',
             scrollX: true, //horizontal scrolling
             scrollY : parameters.vScrollLimit ? parameters.vScrollLimit : '',
+            scrollCollapse: parameters.collapse ? parameters.collapse : false,
             order: [], // remove default sorting
             ajax : {
                 url : parameters.url,
@@ -227,7 +228,7 @@ var DataTableBuilder = function (container, table) {
     
     this.reload = function (dataParameters) {
         if (this.dataTableGrid === null){
-            throw new ReferenceError('Data table is not yet rendered', 'filename.js', 117);
+            throw new ReferenceError('Data table is not yet rendered', 'DataTableBuilder.js', 117);
         }
 
         Object.assign(this.dataTableGrid.context[0].ajax.data, dataParameters);
@@ -286,7 +287,7 @@ var DataTableBuilder = function (container, table) {
 
     this.initializeEventHandlers = function (options, id){    	
         if (!Array.isArray(options)){
-            throw new TypeError('Options should be of array type', 'filename.js', 43);
+            throw new TypeError('Options should be of array type', 'DataTableBuilder.js', 43);
         }
         if (options.indexOf('filter') !== -1){
             containerDiv.on('click', '.dtbl-filter-btn', function(event) {
@@ -301,9 +302,11 @@ var DataTableBuilder = function (container, table) {
                     util.toBeFilteredState = false;
                     util.addedFilters = {};
                     util.reload();
+                    util.filterElements.filterBtn.removeClass('dtbl-filter-btn-active').addClass('dtbl-filter-btn-bg');
                 } else if (!util.isEmptyAddedFilters()){
                     util.toBeFilteredState = true;
                     util.reload(util.addedFilters);
+                    util.filterElements.filterBtn.removeClass('dtbl-filter-btn-bg').addClass('dtbl-filter-btn-active');
                 }
                 containerDiv.find('.dtbl-filter-menu').toggle();
             })
@@ -325,6 +328,7 @@ var DataTableBuilder = function (container, table) {
             		} else {
             			util.toBeFilteredState = true;
             			util.reload(util.addedFilters);
+            			util.filterElements.filterBtn.removeClass('dtbl-filter-btn-bg').addClass('dtbl-filter-btn-active');
                     	containerDiv.find('.dtbl-filter-menu').toggle();
             		}
             	}

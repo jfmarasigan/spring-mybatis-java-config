@@ -28,8 +28,9 @@ testDT.renderTable({
 	columnDefs : [
 		{ className: 'dt-center', targets : [0] }
 	],
-	select: 'single',
-	vScrollLimit : '270px'
+	select: 'multiple',
+	vScrollLimit : '240px',
+	collapse : false
 });
 
 testDT.enableRowHighlight(function (rows){

@@ -20,11 +20,11 @@ public class DataTableRequestParams {
 	}
 
 	public Integer getStart() {
-		return start;
+		return start + 1;
 	}
 
 	public void setStart(Integer start) {
-		this.start = start + 1;
+		this.start = start;
 	}
 
 	public Integer getLength() {

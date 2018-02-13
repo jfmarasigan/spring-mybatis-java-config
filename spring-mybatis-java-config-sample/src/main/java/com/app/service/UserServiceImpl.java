@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.app.entity.DataTableRequestParams;
 import com.app.entity.User;
 import com.app.entity.UserDTParams;
 import com.app.mappers.UserMapper;
@@ -26,13 +25,7 @@ public class UserServiceImpl implements UserService{
 	}
 	
 	@Override
-	public List<User> getAll1(UserDTParams params) {
-		/*Map<String, String> dtParams = new HashMap<>();
-		dtParams.put("start", params.getStart().toString());
-		
-		Integer end = params.getStart() + params.getLength();
-		dtParams.put("end", end.toString());*/
-		
+	public List<User> getAll1(UserDTParams params) {		
 		return mapper.getAll1(params);
 	}
 	

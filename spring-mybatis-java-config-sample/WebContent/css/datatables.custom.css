@@ -47,12 +47,13 @@ th:first-child {
 .dtbl-filter-btn {
 	width: 52px;
 	float: right;
+}
+
+.dtbl-filter-btn-bg {
 	background: url(../images/funnel.png) left center no-repeat;
 }
 
 .dtbl-filter-btn-active {
-	width: 52px;
-	float: right;
 	background: url(../images/funnel_red.png) left center no-repeat;
 }
 
