@@ -70,7 +70,7 @@ public class UserController {
 		root.put("draw", params.getDraw());
 		root.put("recordsTotal", service.getTotalRecords(users));
 		root.put("recordsFiltered", service.getTotalRecords(users));
-		root.put("rows", JSONMapper.writeValueAsString(users));		
+		root.put("rows", JSONMapper.writeValueAsString(users));
 		root.put("filters", JSONMapper.writeValueAsString(UsersFilters.values()));
 		return new ResponseEntity<String>(JSONMapper.writeValueAsString(root), HttpStatus.OK);
 	}
