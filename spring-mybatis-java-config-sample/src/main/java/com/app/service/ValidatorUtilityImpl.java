@@ -5,10 +5,10 @@ import org.springframework.stereotype.Service;
 import com.app.tablefilters.FieldTypes;
 
 @Service
-public class DataTablesServiceImpl implements DataTablesService {
+public class ValidatorUtilityImpl implements ValidatorUtility {
 
 	@Override
-	public String validate(String keyword, FieldTypes filterType) {
+	public String validate(String keyword, String optKeyword, FieldTypes filterType) {
 		if (isEmpty(keyword) && isEmpty(filterType)) {
 			return "Please check if your keyword and/or filter is not empty.";
 		}
@@ -17,6 +17,8 @@ public class DataTablesServiceImpl implements DataTablesService {
 		}		
 		if (FieldTypes.FORMATTED_DATE == filterType) {
 			return new DateValidator().validate(keyword);
+		} else if (FieldTypes.DATE_RANGE == filterType) {
+			return new DateValidator().validDateRange(keyword, optKeyword);
 		} else if (FieldTypes.FORMATTED_HOUR == filterType) {
 			return new HourValidator().validate(keyword);
 		} else if (FieldTypes.PERCENT == filterType) {

@@ -1,8 +1,7 @@
 package com.app.service;
 
-public class HourValidator implements DataTableValidator {
+public class HourValidator {
 	
-	@Override
 	public String validate(String keyword) {
 		try {
 			String[] parts = keyword.split("[: ]");

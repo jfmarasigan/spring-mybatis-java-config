@@ -5,18 +5,17 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.app.service.DataTableValidator;
-import com.app.service.PercentValidator;
+import com.app.service.RateValidator;
 
-public class PercentValidatorTest {
-	private DataTableValidator validator;
+public class RateValidatorTest {
+	private RateValidator validator;
 	
 	private static final String VALID = "valid";
 	private static final String NOT_IN_RANGE = "Percent should be from 0 to 100.";	
 	
 	@Before
 	public void init () {
-		validator = new PercentValidator();
+		validator = new RateValidator();
 	}
 	
 	@Test

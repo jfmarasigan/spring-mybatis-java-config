@@ -1,5 +1,5 @@
 /**
- * @author daniel
+ * @author daniel marasigan
  * @param container - id of the div container
  * @param table - optional, id of table to be used for this data table
  * requires jquery.js, datatables.js, datatables.input.js
@@ -48,6 +48,8 @@ var DataTableBuilder = function (container, table) {
 
     this.clearedFiltersState = false;
     this.toBeFilteredState = false;
+    
+    this.taggedRecords = [];
 
     this.filterElements = {};
     
@@ -181,7 +183,7 @@ var DataTableBuilder = function (container, table) {
 
     this.enableRowSelect = function (handler){
         tableObject.on('dblclick', 'tr', function(p){
-            handler();
+            handler(); //add row selected as param here
         });
 
         return this.dataTableGrid;
@@ -352,8 +354,9 @@ parameters: {
 	id : ''    				// table id
 	url : '',  				// request url
 	data : {}, 				// request parameters
-	pageLength : 10 		// number of rows per page,
-	vScrollLimit: '200px'   // height in which the vertical scroll will be adjusted
+	pageLength : 10, 		// number of rows per page,
+	vScrollLimit: '200px',   // height in which the vertical scroll will be adjusted
+	taggable : true | false, // enables checkbox tagging for table rows, default is false
 	columns : [				// column detail array of objects
 		{
 			data : '',		// name of property from json

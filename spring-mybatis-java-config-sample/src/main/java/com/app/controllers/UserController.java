@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.app.entity.DataTableRequestParams;
 import com.app.entity.User;
 import com.app.entity.UserDTParams;
 import com.app.service.UserService;
@@ -25,7 +24,7 @@ public class UserController {
 
 	private UserService service;
 
-	private static final ObjectMapper JSONMapper = new ObjectMapper();
+	private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
 
 	@Autowired
 	public UserController(UserService service) {
@@ -45,20 +44,20 @@ public class UserController {
 		System.out.println("start: " + start + ", draw: " + draw + ", length: " + length);
 		System.out.println(search);
 		User user = service.getUser(userQuery);
-		root.put("users", JSONMapper.writeValueAsString(user));
+		root.put("users", JSON_MAPPER.writeValueAsString(user));
 		root.put("draw", draw);
 		root.put("recordsTotal", 10);
 		root.put("recordsFiltered", 1);
-		return JSONMapper.writeValueAsString(root);
+		return JSON_MAPPER.writeValueAsString(root);
 	}
 
 	@RequestMapping("/getAll")
 	public ResponseEntity<String> getAll() throws JsonProcessingException {
 		ObjectNode root = JsonNodeFactory.instance.objectNode();
 		List<User> users = service.getAll();
-		root.put("users", JSONMapper.writeValueAsString(users));
+		root.put("users", JSON_MAPPER.writeValueAsString(users));
 
-		return new ResponseEntity<String>(JSONMapper.writeValueAsString(root), HttpStatus.OK);
+		return new ResponseEntity<String>(JSON_MAPPER.writeValueAsString(root), HttpStatus.OK);
 	}
 	
 	@RequestMapping("/get-all")
@@ -70,9 +69,9 @@ public class UserController {
 		root.put("draw", params.getDraw());
 		root.put("recordsTotal", service.getTotalRecords(users));
 		root.put("recordsFiltered", service.getTotalRecords(users));
-		root.put("rows", JSONMapper.writeValueAsString(users));
-		root.put("filters", JSONMapper.writeValueAsString(UsersFilters.values()));
-		return new ResponseEntity<String>(JSONMapper.writeValueAsString(root), HttpStatus.OK);
+		root.put("rows", JSON_MAPPER.writeValueAsString(users));
+		root.put("filters", JSON_MAPPER.writeValueAsString(UsersFilters.values()));
+		return new ResponseEntity<String>(JSON_MAPPER.writeValueAsString(root), HttpStatus.OK);
 	}
 
 	@RequestMapping("/wee")
@@ -80,7 +79,7 @@ public class UserController {
 		ObjectNode root = JsonNodeFactory.instance.objectNode();
 		root.put("wee", service.getOne("JDANIEL"));
 
-		return JSONMapper.writeValueAsString(root);
+		return JSON_MAPPER.writeValueAsString(root);
 	}
 	
 	@RequestMapping(value = {"/util-test"})

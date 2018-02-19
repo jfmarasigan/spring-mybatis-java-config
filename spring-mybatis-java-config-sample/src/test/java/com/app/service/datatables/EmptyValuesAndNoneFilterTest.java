@@ -7,7 +7,7 @@ import org.junit.Test;
 
 import com.app.service.DataTablesService;
 import com.app.service.DataTablesServiceImpl;
-import com.app.tablefilters.DataTableFilterTypes;
+import com.app.tablefilters.FieldTypes;
 
 public class EmptyValuesAndNoneFilterTest {
 
@@ -37,6 +37,6 @@ public class EmptyValuesAndNoneFilterTest {
 	
 	@Test
 	public void testNoneFilterType() {
-		assertEquals("valid", service.validate("sdfdqd239eocdn_242ewd!##$2wgef", DataTableFilterTypes.NONE));
+		assertEquals("valid", service.validate("sdfdqd239eocdn_242ewd!##$2wgef", FieldTypes.NONE));
 	}
 }

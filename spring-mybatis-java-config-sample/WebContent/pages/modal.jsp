@@ -11,3 +11,7 @@
 
 	</div>
 </div>
+
+<!-- 
+apply [display:block] or [display:none] to myModal (id of the modal container)
+ -->

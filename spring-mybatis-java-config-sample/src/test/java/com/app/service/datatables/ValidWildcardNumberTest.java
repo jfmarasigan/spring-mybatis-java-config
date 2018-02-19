@@ -7,7 +7,7 @@ import org.junit.Test;
 
 import com.app.service.DataTablesService;
 import com.app.service.DataTablesServiceImpl;
-import com.app.tablefilters.DataTableFilterTypes;
+import com.app.tablefilters.FieldTypes;
 
 public class ValidWildcardNumberTest {
 
@@ -20,36 +20,36 @@ public class ValidWildcardNumberTest {
 	
 	@Test
 	public void testNoWildcardNumber() {
-		assertEquals("valid", service.validate("23", DataTableFilterTypes.WILDCARD_NON_NEG_WHOLE_NUMBER));
+		assertEquals("valid", service.validate("23", FieldTypes.WILDCARD_NON_NEG_WHOLE_NUMBER));
 	}
 	
 	@Test
 	public void testNumberWithStartingWildcard() {
-		assertEquals("valid", service.validate("%23", DataTableFilterTypes.WILDCARD_NON_NEG_WHOLE_NUMBER));
+		assertEquals("valid", service.validate("%23", FieldTypes.WILDCARD_NON_NEG_WHOLE_NUMBER));
 	}
 	
 	@Test
 	public void testNegNumberWithStartingWildcard() {
-		assertEquals("valid", service.validate("%-23", DataTableFilterTypes.WILDCARD_NON_NEG_WHOLE_NUMBER));
+		assertEquals("valid", service.validate("%-23", FieldTypes.WILDCARD_NON_NEG_WHOLE_NUMBER));
 	}
 	
 	@Test
 	public void testNumberWithEndingWildcard() {
-		assertEquals("valid", service.validate("23%", DataTableFilterTypes.WILDCARD_NON_NEG_WHOLE_NUMBER));
+		assertEquals("valid", service.validate("23%", FieldTypes.WILDCARD_NON_NEG_WHOLE_NUMBER));
 	}
 	
 	@Test
 	public void testNegNumberWithEndingWildcard() {
-		assertEquals("valid", service.validate("-23%", DataTableFilterTypes.WILDCARD_NON_NEG_WHOLE_NUMBER));
+		assertEquals("valid", service.validate("-23%", FieldTypes.WILDCARD_NON_NEG_WHOLE_NUMBER));
 	}
 	
 	@Test
 	public void testNumberWithMidWildCard() {
-		assertEquals("valid", service.validate("23%23", DataTableFilterTypes.WILDCARD_NON_NEG_WHOLE_NUMBER));
+		assertEquals("valid", service.validate("23%23", FieldTypes.WILDCARD_NON_NEG_WHOLE_NUMBER));
 	}
 	
 	@Test
 	public void testNumberWithAllWildCard() {
-		assertEquals("valid", service.validate("%23%23%", DataTableFilterTypes.WILDCARD_NON_NEG_WHOLE_NUMBER));
+		assertEquals("valid", service.validate("%23%23%", FieldTypes.WILDCARD_NON_NEG_WHOLE_NUMBER));
 	}
 }

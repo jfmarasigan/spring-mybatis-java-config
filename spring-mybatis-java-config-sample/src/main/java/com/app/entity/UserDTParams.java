@@ -2,9 +2,9 @@ package com.app.entity;
 
 public class UserDTParams extends DataTableRequestParams {
 	private String userId;
-	
+
 	private String userName;
-	
+
 	private Integer userGrp;
 
 	public String getUserId() {

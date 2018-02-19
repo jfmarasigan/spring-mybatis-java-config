@@ -13,6 +13,18 @@ testDT.renderTable({
 		wow: 'lol'
 	},
 	columns: [
+		/*{
+			data: null,
+			colHeader : '&nbsp;&nbsp;&nbsp;&nbsp;T',
+			width: '13px',
+			orderable: false,
+			render : function (data, type, row) {
+				var cbox = document.createElement('input');
+				cbox.type = 'checkbox';
+				cbox.className = 'dt-tags';
+				return cbox.outerHTML;
+			}
+		},*/
 		{ 
 			data: 'userId', 
 			colHeader : 'User ID'/*,
@@ -22,21 +34,22 @@ testDT.renderTable({
 			}*/
 		},
 		{ data: 'userGrp', colHeader : 'User Group' },
-		{ data: 'userName', colHeader : 'User Name' },
+		{ data: 'userName', colHeader : 'User Name' }
 	],
 	options: ['filter', 'refresh'],
 	columnDefs : [
-		{ className: 'dt-center', targets : [0] }
+		{ className: 'dt-center', targets : [0,1] }
 	],
-	select: 'multiple',
 	vScrollLimit : '240px',
 	collapse : false
 });
 
+//on cell focus
 testDT.enableRowHighlight(function (rows){
 	var text = document.getElementById('text');
+	console.log(rows.length);
 	for (var i = 0; i < rows.length; i++){
-		text.innerHTML = JSON.stringify(rows[i]) + ' ' + '<br/>' ;
+		text.innerHTML = JSON.stringify(rows[i]); // replaces content
 	}
 });
 /*

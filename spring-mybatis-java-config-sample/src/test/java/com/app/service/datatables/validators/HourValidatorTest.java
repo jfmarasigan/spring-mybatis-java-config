@@ -5,12 +5,11 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.app.service.DataTableValidator;
 import com.app.service.HourValidator;
 
 public class HourValidatorTest {
 
-	private DataTableValidator validator;
+	private HourValidator validator;
 	
 	private static final String VALID = "valid";
 	private static final String NOT_IN_RANGE_HOUR = "Hour must be from 1 to 12";
