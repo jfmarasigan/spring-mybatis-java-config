@@ -13,32 +13,27 @@ testDT.renderTable({
 		wow: 'lol'
 	},
 	columns: [
-		/*{
+		{
 			data: null,
 			colHeader : '&nbsp;&nbsp;&nbsp;&nbsp;T',
 			width: '13px',
 			orderable: false,
+			tagColumn : true,
+			
 			render : function (data, type, row) {
-				var cbox = document.createElement('input');
-				cbox.type = 'checkbox';
-				cbox.className = 'dt-tags';
-				return cbox.outerHTML;
+				return 'a';
+			}, 
+			onClick : function (){
+				
 			}
-		},*/
-		{ 
-			data: 'userId', 
-			colHeader : 'User ID'/*,
-			width: '10%',
-			render : function (data, type, row){					
-				return '<input type="checkbox" checked disabled/>';
-			}*/
 		},
-		{ data: 'userGrp', colHeader : 'User Group' },
+		{ data: 'userId', colHeader : 'User ID' },
+		{ data: 'userGrp', colHeader : 'User Group', width: '90px' },
 		{ data: 'userName', colHeader : 'User Name' }
 	],
 	options: ['filter', 'refresh'],
 	columnDefs : [
-		{ className: 'dt-center', targets : [0,1] }
+		{ className: 'dt-center', targets : '_all' }
 	],
 	vScrollLimit : '240px',
 	collapse : false

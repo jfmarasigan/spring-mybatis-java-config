@@ -20,6 +20,7 @@ public class DataTableRequestParams {
 	}
 
 	public Integer getStart() {
+		Integer start = this.start == null ? 1 : this.start;
 		return start + 1;
 	}
 
@@ -52,7 +53,9 @@ public class DataTableRequestParams {
 	}
 
 	public Integer getEnd() {
-		return this.start + this.length;
+		Integer start = this.start == null ? 1 : this.start;
+		Integer length = this.length == null ? 10 : this.length;
+		return start + length;
 	}
 
 }

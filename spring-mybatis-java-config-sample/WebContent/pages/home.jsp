@@ -4,7 +4,7 @@
 		<title>test</title>
 		<link rel="stylesheet" type="text/css" href="css/datatables.min.css">
 		<link rel="stylesheet" type="text/css" href="css/select.dataTables.min.css">
-		<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+		<script type="text/javascript" src="js/jquery.min.js"></script>
 		<script type="text/javascript" src="js/datatables.min.js"></script>
 		<script type="text/javascript" src="js/dataTables.select.min.js"></script>
 		<!-- <script type="text/javascript" src="https://cdn.datatables.net/plug-ins/1.10.16/pagination/input.js"></script> -->
@@ -93,7 +93,7 @@
 			/* The Modal (background) */
 			.modal {
 			    display: none; /* Hidden by default */
-			    position: fixed; /* Stay in place */
+			    position: fixed;  Stay in place */
 			    z-index: 1; /* Sit on top */
 			    padding-top: 100px; /* Location of the box */
 			    left: 0;
@@ -109,11 +109,16 @@
 			.modal-content {
 			    background-color: #fefefe;
 			    margin: auto;
-			    /* padding: 20px; */
 			    border: 5px solid #2c4762;
-			    width: 80%;
+			    width: 300px;
 			    border-radius: 3px;
-			    
+			    position: absolute;
+			    min-height: 150px;
+			    width: 600px;
+			    max-width: 600px;
+			    min-width: 300px;
+			    top: 25%;
+			    left: 37%;		    			    
 			}
 			
 			.modal-header {
@@ -152,6 +157,7 @@
 		<input type="hidden" id="contextPath" value="${pageContext.request.contextPath}">
 		<button id="click">Click me</button>
 		<button id="go-to-util-test">Go to Util Test</button>
+		<button id="go-to-tabulator-test">Go to Tabulator Test</button>
 		<div id="contanier" style="width: 800px; height: 500px; padding: 5px; font-size: 11px;">
 			<div id="options-tables" class="dtbl-options">
 				<div id="filter-btn" class="filter-btn">Filter</div>
@@ -258,6 +264,10 @@
 	
 	document.getElementById('go-to-util-test').onclick = function () {
 		window.location.href = 'util-test';
+	};
+	
+	document.getElementById('go-to-tabulator-test').onclick = function () {
+		window.location.href = 'tabulator-test';
 	};
 	
 	var columns = (function (){

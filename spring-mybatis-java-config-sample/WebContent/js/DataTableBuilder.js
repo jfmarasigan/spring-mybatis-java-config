@@ -15,7 +15,6 @@ var DataTableBuilder = function (container, table) {
     })();
 
     var util = this;
-    
     var $qs = document.querySelector.bind(document);
     
     // toolbar constants
@@ -75,18 +74,19 @@ var DataTableBuilder = function (container, table) {
     	return Object.keys(util.addedFilters).length === 0 && util.addedFilters.constructor === Object;
     };
     
-    this.isEmptyFilterKeyword = function (){
-    	return ['', null, undefined].indexOf() !== -1;
-    }
+    this.isEmpty = function (element){
+    	return ['', null, undefined].indexOf(element) !== -1;
+    };
     
-    var constructOptionsToolbar = function (options) {
-        if (!Array.isArray(options)) {
-            throw new TypeError('options must be of the type array', 'DataTableBuilder.js', 21);
-        }
-        if (options === null || options.length === 0){
+    this.constructOptionsToolbar = function (options) {
+    	if (options.length === 0){
             return '';
         }
-
+    	
+    	if (!Array.isArray(options)) {
+            throw new TypeError('options must be of the type array', 'DataTableBuilder.js', 21);
+        }
+        
         var toolbar = '<div class="dtbl-toolbar">';
 
         if (options.indexOf('filter') !== -1){
@@ -104,7 +104,7 @@ var DataTableBuilder = function (container, table) {
     };
 
     var constructTable = function (tableId, columns){
-        var table = '<table id="' + tableId + '" class="cell-border compact" style="width: 100%; border-bottom: 1px solid #ddd;"><thead>'; 
+        var table = '<table id="' + tableId + '" class="cell-border compact hover" style="width: 100%; border-bottom: 1px solid #ddd;"><thead>'; 
         for (var idx = 0; idx < columns.length; idx++){
             table = table + '<th>' + columns[idx].colHeader + '</th>';
         }
@@ -113,13 +113,32 @@ var DataTableBuilder = function (container, table) {
         return table;
     };
     
+    var getColumnsForTagging = function (columns){
+    	var newCols = columns;
+    	for (var idx = 0; idx < columns.length; idx++){
+    		if (columns[idx].tagColumn){
+    			var newColDef = columns[idx];
+    			newColDef.render = function (data, type, row){
+    				var cbx = document.createElement('input');
+    				cbx.type = 'checkbox';
+    				cbx.className = 'dt-tags';
+    				return cbx.outerHTML;
+    			};
+    			newCols[idx] = newColDef;
+    		}
+    	}    	
+    	return newCols;
+    };
+    
     this.renderTable = function (parameters) {
-        var toolbarDiv = constructOptionsToolbar(parameters.options);
-        containerDiv.prepend(toolbarDiv);
-        
-        if (parameters.options.indexOf('filter') !== -1) {
-        	setFilterElements();
-        }
+    	if (!this.isEmpty(parameters.options)){
+	        var toolbarDiv = this.constructOptionsToolbar(parameters.options);
+	        containerDiv.prepend(toolbarDiv);
+	        
+	        if (parameters.options.indexOf('filter') !== -1) {
+	        	setFilterElements();
+	        }
+    	}
 
         if (tableObject === null){
         	if (!parameters.id) {
@@ -130,14 +149,18 @@ var DataTableBuilder = function (container, table) {
             tableObject = jQuery('#' + parameters.id);
         }
         
-        this.initializeEventHandlers(parameters.options, parameters.id);
+        if (!this.isEmpty(parameters.options)){
+        	this.initializeEventHandlers(parameters.options, parameters.id);
+        }
         var paramLen = parameters.pageLength;
         var pLength = isNaN(paramLen) && parseInt(paramLen) > 0 ? 10 : paramLen;
 
         this.defaultFilters = parameters.data;
 
         this.setBeforeRender(parameters.beforeRender);
-        this.setAfterRender(parameters.afterRender);
+        this.setAfterRender(parameters.afterRender, !this.isEmpty(parameters.options));
+        
+        var newColumns = getColumnsForTagging(parameters.columns);
         
         this.dataTableGrid = tableObject.DataTable({
             serverSide : true,
@@ -211,7 +234,7 @@ var DataTableBuilder = function (container, table) {
     	
     	jQuery.ajax({
     		method : 'GET',
-    		url : 'data-tables/validate-filter',
+    		url : 'validate',
     		data : {
     			filterType : filters.filterType,
     			keyword : filters.filterKeyword
@@ -226,7 +249,7 @@ var DataTableBuilder = function (container, table) {
     			$qs(containerDiv + ' .dtbl-filter-entry').val('');
     		}
     	});
-    }
+    };
     
     this.reload = function (dataParameters) {
         if (this.dataTableGrid === null){
@@ -269,18 +292,20 @@ var DataTableBuilder = function (container, table) {
         });
     };
 
-    this.setAfterRender = function(handler){
+    this.setAfterRender = function(handler, hasOptions){
         tableObject.on('xhr.dt', function(e, settings, json, xhr) {
-        	util.filtersRetrieved = JSON.parse(json.filters);
-            if (containerDiv.find('.dtbl-filter-list option').length === 0) {
-                jQuery.each(util.filtersRetrieved, function(index, value) {
-                	var option = document.createElement('option');
-                    option.value = value.key;
-                    option.text = value.optName;
-                    option.setAttribute('filter-type', value.filterType);
-                    $qs(container + ' .dtbl-filter-list').appendChild(option);
-                });
-            }
+        	if (hasOptions){
+	        	util.filtersRetrieved = JSON.parse(json.filters);
+	            if (containerDiv.find('.dtbl-filter-list option').length === 0) {
+	                jQuery.each(util.filtersRetrieved, function(index, value) {
+	                	var option = document.createElement('option');
+	                    option.value = value.key;
+	                    option.text = value.optName;
+	                    option.setAttribute('filter-type', value.filterType);
+	                    $qs(container + ' .dtbl-filter-list').appendChild(option);
+	                });
+	            }
+        	}
             if (handler) { 
             	handler(json, xhr, e, settings);
             }

@@ -18,4 +18,6 @@ public interface UserService {
 	String getOne(@Param("userId") String userId);
 	
 	Integer getTotalRecords(List<User> users);
+	
+	Integer getTotalPages(int recordCount, int pageSize);
 }

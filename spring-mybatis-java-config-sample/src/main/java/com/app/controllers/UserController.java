@@ -73,6 +73,17 @@ public class UserController {
 		root.put("filters", JSON_MAPPER.writeValueAsString(UsersFilters.values()));
 		return new ResponseEntity<String>(JSON_MAPPER.writeValueAsString(root), HttpStatus.OK);
 	}
+	
+	@RequestMapping("/get-users")
+	public ResponseEntity<String> getUsers (UserDTParams params)
+			throws JsonProcessingException {
+		ObjectNode root = JsonNodeFactory.instance.objectNode();
+		List<User> users = service.getAll1(params);
+		root.put("last_page", service.getTotalPages(service.getTotalRecords(users), 10));
+		root.put("data", JSON_MAPPER.writeValueAsString(users));
+		root.put("filters", JSON_MAPPER.writeValueAsString(UsersFilters.values()));
+		return new ResponseEntity<String>(JSON_MAPPER.writeValueAsString(root), HttpStatus.OK);
+	}
 
 	@RequestMapping("/wee")
 	public @ResponseBody String getwee() throws JsonProcessingException {
@@ -86,5 +97,11 @@ public class UserController {
 	public String gotoutiltest() {
 		System.out.println("redirected to util-test");
 		return "util-test";
+	}
+	
+	@RequestMapping(value = {"/tabulator-test"})
+	public String gototabulatortest() {
+		System.out.println("redirected to tabulator-test");
+		return "tabulator-test";
 	}
 }

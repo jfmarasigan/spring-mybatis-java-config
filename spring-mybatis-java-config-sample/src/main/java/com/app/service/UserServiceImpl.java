@@ -45,4 +45,9 @@ public class UserServiceImpl implements UserService{
 		return users.size() > 0 ? users.get(0).getTotalRecords() : 0;
 	}
 
+	@Override
+	public Integer getTotalPages(int recordCount, int pageSize) {
+		return (recordCount / pageSize) + (recordCount % pageSize == 0 ? 0 : 1); 
+	}
+
 }

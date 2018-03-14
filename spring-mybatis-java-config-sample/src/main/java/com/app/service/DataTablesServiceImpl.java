@@ -8,18 +8,18 @@ import com.app.tablefilters.FieldTypes;
 public class DataTablesServiceImpl implements DataTablesService {
 
 	@Override
-	public String validate(String keyword, FieldTypes filterType) {
-		if (isEmpty(keyword) && isEmpty(filterType)) {
+	public String validate(String keyword, FieldTypes fieldType) {
+		if (isEmpty(keyword) && isEmpty(fieldType)) {
 			return "Please check if your keyword and/or filter is not empty.";
 		}
-		if (FieldTypes.NONE != filterType && !keyword.matches(filterType.getRegexMatcher())) {
-			return filterType.getNotMatchMessage();
+		if (FieldTypes.NONE != fieldType && !keyword.matches(fieldType.getRegexMatcher())) {
+			return fieldType.getNotMatchMessage();
 		}		
-		if (FieldTypes.FORMATTED_DATE == filterType) {
+		if (FieldTypes.FORMATTED_DATE == fieldType) {
 			return new DateValidator().validate(keyword);
-		} else if (FieldTypes.FORMATTED_HOUR == filterType) {
+		} else if (FieldTypes.FORMATTED_HOUR == fieldType) {
 			return new HourValidator().validate(keyword);
-		} else if (FieldTypes.PERCENT == filterType) {
+		} else if (FieldTypes.PERCENT == fieldType) {
 			return new RateValidator().validate(keyword);
 		} else {
 			return "valid";
