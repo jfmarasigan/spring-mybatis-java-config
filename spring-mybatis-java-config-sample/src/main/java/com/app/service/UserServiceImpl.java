@@ -25,7 +25,9 @@ public class UserServiceImpl implements UserService{
 	}
 	
 	@Override
-	public List<User> getAll1(UserDTParams params) {		
+	public List<User> getAll1(UserDTParams params) {
+		System.out.println("start: " + params.getStart());
+		System.out.println("end: " + params.getEnd());
 		return mapper.getAll1(params);
 	}
 	
@@ -42,11 +44,13 @@ public class UserServiceImpl implements UserService{
 
 	@Override
 	public Integer getTotalRecords(List<User> users) {
-		return users.size() > 0 ? users.get(0).getTotalRecords() : 0;
+		return !users.isEmpty() ? users.get(0).getTotalRecords() : 0;
 	}
 
 	@Override
 	public Integer getTotalPages(int recordCount, int pageSize) {
+		System.out.println("recordCount: " + recordCount);
+		System.out.println("pageSize: " + pageSize);
 		return (recordCount / pageSize) + (recordCount % pageSize == 0 ? 0 : 1); 
 	}
 

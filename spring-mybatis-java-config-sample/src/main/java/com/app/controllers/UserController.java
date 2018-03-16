@@ -57,7 +57,7 @@ public class UserController {
 		List<User> users = service.getAll();
 		root.put("users", JSON_MAPPER.writeValueAsString(users));
 
-		return new ResponseEntity<String>(JSON_MAPPER.writeValueAsString(root), HttpStatus.OK);
+		return new ResponseEntity<>(JSON_MAPPER.writeValueAsString(root), HttpStatus.OK);
 	}
 	
 	@RequestMapping("/get-all")
@@ -79,10 +79,11 @@ public class UserController {
 			throws JsonProcessingException {
 		ObjectNode root = JsonNodeFactory.instance.objectNode();
 		List<User> users = service.getAll1(params);
+		System.out.println(service.getTotalRecords(users));
 		root.put("last_page", service.getTotalPages(service.getTotalRecords(users), 10));
 		root.put("data", JSON_MAPPER.writeValueAsString(users));
 		root.put("filters", JSON_MAPPER.writeValueAsString(UsersFilters.values()));
-		return new ResponseEntity<String>(JSON_MAPPER.writeValueAsString(root), HttpStatus.OK);
+		return new ResponseEntity<>(JSON_MAPPER.writeValueAsString(root), HttpStatus.OK);
 	}
 
 	@RequestMapping("/wee")
@@ -103,5 +104,11 @@ public class UserController {
 	public String gototabulatortest() {
 		System.out.println("redirected to tabulator-test");
 		return "tabulator-test";
+	}
+	
+	@RequestMapping(value = {"/test"})
+	public String gototest() {
+		System.out.println("redirected to tabulator-test");
+		return "giacs311";
 	}
 }

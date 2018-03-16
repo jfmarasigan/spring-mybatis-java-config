@@ -20,11 +20,13 @@ public class DataTableRequestParams {
 	}
 
 	public Integer getStart() {
-		Integer start = this.start == null ? 1 : this.start;
+		System.out.println("initStart:" + this.start);
+		Integer start = this.start == null ? 0 : this.start;
 		return start + 1;
 	}
 
 	public void setStart(Integer start) {
+		System.out.println("setStart: " + start);
 		this.start = start;
 	}
 
@@ -33,6 +35,7 @@ public class DataTableRequestParams {
 	}
 
 	public void setLength(Integer length) {
+		System.out.println("setLength: " + length);
 		this.length = length;
 	}
 

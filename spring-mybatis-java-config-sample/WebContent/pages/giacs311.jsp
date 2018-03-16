@@ -25,17 +25,13 @@
 			<table id="table-test" class="cell-border compact hover" style="width: 100%; border-bottom: 1px solid #ddd;">
 				<thead>
 					<tr>
-						<th>Tag</th>
-						<th>User ID</th>
-						<th>User Group</th>
-						<th>User Name</th>
-						<th>wow</th>
+						<th>GL Account Code</th>
+						<th>GL Account Name</th>
 					</tr>
 				</thead>
 			</table>
 		</div>
 		<div id="text" style="border: 1px solid black; width: 800px; height: 25px; margin-bottom: 10px;"></div>
-		<!-- <div id="container2" class="dtbl-container" style="width: 800px; height: 400px;"></div> -->
 	</body>
-	<script type="text/javascript" src="js/util-test/util-test.js"></script>
+	<script type="text/javascript" src="js/test.js"></script>
 </html>

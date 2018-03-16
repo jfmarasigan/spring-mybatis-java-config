@@ -18,6 +18,7 @@
 			.tabulator {
 				font-size: 11px;
 			}
+			
 		</style>
 	</head>
 	<body>

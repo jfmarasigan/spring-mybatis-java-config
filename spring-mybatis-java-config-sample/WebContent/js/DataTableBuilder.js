@@ -40,7 +40,8 @@ var DataTableBuilder = function (container, table) {
                      '</div>';
 
     this.dataTableGrid = null;
-
+    this.selectedRow = null;
+    
     this.defaultFilters = {};
     this.addedFilters = {};
     this.filtersRetrieved = {};
@@ -113,17 +114,56 @@ var DataTableBuilder = function (container, table) {
         return table;
     };
     
+    this.removeTagRecordMatch = function (rec, arr){
+    	var match = false;
+    	for (var idx2 = 0; idx2 < arr.length; idx2++){
+    		for (var prop in arr[idx2]){
+    			if (arr[idx2][prop] === rec[prop] && arr[idx2].hasOwnProperty(prop) && rec.hasOwnProperty(prop)){
+    				match = true;
+    			} else {
+    				match = false;
+    				break;
+    			}
+    		}
+    		
+    		if (match) {
+    			arr.splice(idx2, 1);
+    			break;
+    		}
+    	}
+    };
+    
     var getColumnsForTagging = function (columns){
     	var newCols = columns;
-    	for (var idx = 0; idx < columns.length; idx++){
-    		if (columns[idx].tagColumn){
+    	for (var idx = 0; idx < columns.length; idx++) {
+    		if (['tag', 'display'].indexOf(columns[idx].tagOption) !== -1) {
     			var newColDef = columns[idx];
+    			var cbx = document.createElement('input');
+				cbx.type = 'checkbox';
+				cbx.className = 'dt-tags';
+				
+    			/*if (columns[idx].tagOption === 'tag'){
+    				cbx.onclick = function () {
+    					var row = util.dataTableGrid.rows('.selected').data()[0];
+    					columns[idx].onclick(row);
+    					if (this.checked){
+    						util.taggedRecords.push(row);
+    					} else {
+    						removeTagRecordMatch(row, util.taggedRecords);
+    					}
+    				};
+    			} else*/ if (columns[idx].tagOption === 'display') {
+    				cbx.disabled = true;
+    				cbx.checked = true;
+    				//cbx.setChecked = columns[idx].setChecked;
+    			}
+    			
+    			//var cbb = new DataTableBuilder.CellCheckBox({onclick : cbx.onclick, setChecked : columns[idx].setChecked});
+    			
     			newColDef.render = function (data, type, row){
-    				var cbx = document.createElement('input');
-    				cbx.type = 'checkbox';
-    				cbx.className = 'dt-tags';
-    				return cbx.outerHTML;
+    				return cbx.outerHTML; //cbb.construct(data);
     			};
+    			
     			newCols[idx] = newColDef;
     		}
     	}    	
@@ -138,6 +178,8 @@ var DataTableBuilder = function (container, table) {
 	        if (parameters.options.indexOf('filter') !== -1) {
 	        	setFilterElements();
 	        }
+	        
+	        this.initializeEventHandlers(parameters.options, parameters.id);
     	}
 
         if (tableObject === null){
@@ -148,10 +190,7 @@ var DataTableBuilder = function (container, table) {
             containerDiv.append(table);
             tableObject = jQuery('#' + parameters.id);
         }
-        
-        if (!this.isEmpty(parameters.options)){
-        	this.initializeEventHandlers(parameters.options, parameters.id);
-        }
+
         var paramLen = parameters.pageLength;
         var pLength = isNaN(paramLen) && parseInt(paramLen) > 0 ? 10 : paramLen;
 
@@ -160,7 +199,7 @@ var DataTableBuilder = function (container, table) {
         this.setBeforeRender(parameters.beforeRender);
         this.setAfterRender(parameters.afterRender, !this.isEmpty(parameters.options));
         
-        var newColumns = getColumnsForTagging(parameters.columns);
+        //var newColumns = getColumnsForTagging(parameters.columns);
         
         this.dataTableGrid = tableObject.DataTable({
             serverSide : true,
@@ -169,10 +208,10 @@ var DataTableBuilder = function (container, table) {
             searching : false,
             pagingType : 'input',
             select: parameters.select ? parameters.select : 'single',
-            scrollX: true, //horizontal scrolling
+            scrollX: true,
             scrollY : parameters.vScrollLimit ? parameters.vScrollLimit : '',
             scrollCollapse: parameters.collapse ? parameters.collapse : false,
-            order: [], // remove default sorting
+            order: [],
             ajax : {
                 url : parameters.url,
                 data : function (d){
@@ -183,6 +222,13 @@ var DataTableBuilder = function (container, table) {
                 dataType: 'json',
                 dataSrc : function (json){
                     return JSON.parse(json.rows);
+                },
+                error : function (jqXHR, textStatus, errorThrown){
+                	if (parameters.onError){
+                		parameters.onError(errorThrown, jqXHR, textStatus);
+                	} else {
+                		console.log(errorThrown);
+                	}
                 }
             },
             columns: parameters.columns,
@@ -192,10 +238,11 @@ var DataTableBuilder = function (container, table) {
         return this.dataTableGrid;
     };
 
-    this.enableRowHighlight = function(handler){
+    this.enableRowFocus = function(handler){
         var dtblGrid = this.dataTableGrid;
         tableObject.on('click', 'tr', function(p){
             jQuery(this).toggleClass('selected');
+            util.selectedRow = dtblGrid.rows('.selected').data()[0];
             if (handler) { 
             	handler(dtblGrid.rows('.selected').data(), p);
             }
@@ -341,6 +388,7 @@ var DataTableBuilder = function (container, table) {
                 if (!util.isEmptyAddedFilters()){
                     containerDiv.find('.dtbl-filter-list').prop('selectedIndex', 0);
                     containerDiv.find('.dtbl-filter-text-list, .dtbl-filter-entry').val('');
+                    util.addedFilters = {};
                     util.clearedFiltersState = true;
                 }
             })
@@ -402,3 +450,23 @@ parameters: {
 	afterRender : function(json, xhr, e, settings){}
 }
 */
+
+DataTableBuilder.CellCheckBox = function (args) {
+	this.setChecked = args.setChecked;
+	this.editable = args.editable;
+	this.cbxLabel = args.identifier;
+	
+	this.construct = function (data){
+		if (['', null, undefined].indexOf(this.cbxLabel) !== -1){
+			throw new ReferenceError('identifier should be defined in your column definitions'); 
+		}
+		
+		var checked = this.setChecked && this.setChecked(data) ? ' checked ' : '';
+		var disabled = this.editable ? '' : ' disabled ';
+		
+		var cbx = '<input type="checkbox" class="dt-tags" ' + disabled + ' ' 
+			+ checked + ' cbx-label="' + this.cbxLabel +'" />';
+		
+		return cbx;
+	};
+};

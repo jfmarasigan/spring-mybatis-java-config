@@ -158,6 +158,7 @@
 		<button id="click">Click me</button>
 		<button id="go-to-util-test">Go to Util Test</button>
 		<button id="go-to-tabulator-test">Go to Tabulator Test</button>
+		<button id="go-to-test">Go to GIACS311 Test</button>
 		<div id="contanier" style="width: 800px; height: 500px; padding: 5px; font-size: 11px;">
 			<div id="options-tables" class="dtbl-options">
 				<div id="filter-btn" class="filter-btn">Filter</div>
@@ -270,6 +271,10 @@
 		window.location.href = 'tabulator-test';
 	};
 	
+	document.getElementById('go-to-test').onclick = function () {
+		window.location.href = 'test';
+	};
+	
 	var columns = (function (){
 		var cols = tb.context[0].aoColumns;
 		var data = [];
@@ -303,4 +308,5 @@
 	    modal.style.display = "none";
 	}
 	// modal test : end
+
 </script>

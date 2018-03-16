@@ -27,13 +27,12 @@ public class ValidatorUtilityController {
 	 * @param filterType string that denotes the field type to be used when validating
 	 * */
 	@RequestMapping(value = { "validate" })
-	public ResponseEntity<String> validateFilter(String keyword, String optKeyword, String filterType)
-			throws IOException {
+	public ResponseEntity<String> validateFilter(String keyword, String optKeyword, String filterType) {
 		String result = service.validate(keyword, optKeyword, FieldTypes.valueOf(filterType));
 		HttpStatus status = HttpStatus.OK;
 		if (!"valid".equals(result)) {
 			status = HttpStatus.NOT_ACCEPTABLE;
 		}
-		return new ResponseEntity<String>(result, status);
+		return new ResponseEntity<>(result, status);
 	}
 }
