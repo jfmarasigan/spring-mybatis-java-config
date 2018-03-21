@@ -9,7 +9,7 @@ testDT.renderTable({
 	columns : [
 		{
 			data: 'glAcctCode',
-			width: '220px',
+			width: '288px',
 			render: function (data, type, row){
 				return row.glAcctCategory + ' - ' + lpad(2, parseInt(row.glControlAcct)) +
 						' - ' + lpad(2, parseInt(row.glSubAcct1)) + 
@@ -23,10 +23,15 @@ testDT.renderTable({
 			}
 		},
 		{ 
-			data: 'glAcctName'
+			data: 'glAcctName',
+			width: '350px'
 		}
 	],
 	options: ['filter', 'refresh'],
 	vScrollLimit : '240px',
 	collapse : false
+});
+
+testDT.enableRowFocus(function(row){
+	document.getElementById('text').innerHTML = JSON.stringify(row);
 });

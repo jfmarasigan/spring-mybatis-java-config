@@ -8,19 +8,35 @@ var testDT = new DataTableBuilder('#container', '#table-test');
 testDT.renderTable({
 	id: 'table-test',
 	url: 'get-all',
-	data : {
-		test: 100,
-		wow: 'lol'
-	},
 	columns: [
 		{
 			data: 'userId',
 			colHeader : '&nbsp;&nbsp;&nbsp;&nbsp;T',
 			width: '13px',
 			orderable: false,
-			//tagOption : 'display',
+			identifier: 'tag-abcd',
+			onTag : function (row, checked){
+				console.log(checked);
+				console.log(row);
+			},
 			render : function (data, type, row){
-				//return '<input type="checkbox" class="dt-tags" disabled ' +  (data !== '' ? ' checked ' : '') + '/>';
+				var checked = data === 'LTOLEN' ? 'checked' : '';
+				return '<input type="checkbox" class="dt-tags" cbx-label="tag-abcd" ' + checked + ' />';		
+			}
+		/*  editor: 'checkbox',
+			identifier: 'tag-abcd',
+			editable: true,
+			setChecked : function (d) {
+				return d === 'LTOLEN';
+			},
+			onTag : function (row){
+				console.log(row);
+			},
+			render : function (data, type, row){
+				var checked = data === 'LTOLEN' ? 'checked' : '';
+				
+				return '<input type="checkbox" class="dt-tags"' 
+						+ checked + ' cbx-label="tag-abcd" />';
 				var cbx = new DataTableBuilder.CellCheckBox({
 					identifier: 'tag-abcd', 
 					editable: true, 
@@ -30,10 +46,7 @@ testDT.renderTable({
 				});
 				
 				return cbx.construct(data);				
-			},
-			tagOnClick : function (row){
-				console.log(row);
-			}
+			}*/
 		},
 		{ data: 'userId', colHeader : 'User ID' },
 		{ data: 'userGrp', colHeader : 'User Group', width: '90px' },
@@ -50,44 +63,27 @@ testDT.renderTable({
 		{ className: 'dt-center', targets : '_all' }
 	],
 	vScrollLimit : '240px',
-	collapse : false
-});
-
-//on cell focus
-testDT.enableRowFocus(function (rows){
-	var text = document.getElementById('text');
-	console.log('length: ' + rows.length);
-	for (var i = 0; i < rows.length; i++){
-		text.innerHTML = JSON.stringify(rows[i]); // replaces content
+	collapse : false,
+	onError : function (errorThrown, jqXHR, textStatus){
+		var res = jqXHR;
+		console.log(jqXHR)
+		alert(res.responseText);
 	}
 });
 
-/*
-var testDT2 = new DataTableBuilder('#container2', null);
+//on cell focus
+testDT.enableRowFocus(function (row){
+	console.log('click triggered.');
+});
 
-testDT2.renderTable({
-	id: 'table-test2',
-	url: 'get-all',
-	data : {
-		test: 100,
-		wow: 'lol'
-	},
-	columns: [
-		{ 
-			data: 'userId', 
-			colHeader : 'User ID',
-			width: '10%',
-			render : function (data, type, row){					
-				return '<input type="checkbox" checked disabled/>';
-			}
-		},
-		{ data: 'userGrp', colHeader : 'User Group' },
-		{ data: 'userName', colHeader : 'User Name' },
-	],
-	options: ['filter', 'refresh'],
-	columnDefs : [
-		{ className: 'dt-center', targets : [0] }
-	],
-	select: 'single'
-});*/
+//on dbl click
+testDT.enableRowSelect(function (data){
+	console.log('dbl click triggered');
+});
+
+document.getElementById('btn-click').onclick = function() {
+	testDT.reload({
+		userId: '%a%'
+	});
+}
 //});

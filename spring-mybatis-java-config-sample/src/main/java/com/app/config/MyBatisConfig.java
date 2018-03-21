@@ -22,7 +22,7 @@ public class MyBatisConfig {
 		SimpleDriverDataSource dataSource = new SimpleDriverDataSource();
 		
 		dataSource.setDriverClass(OracleDriver.class);
-		dataSource.setUrl("jdbc:oracle:thin:@192.10.10.169:1521:BASEDANIEL");
+		dataSource.setUrl("jdbc:oracle:thin:@localhost:1521:BASEDANIEL");
 		dataSource.setUsername("CPI");
 		dataSource.setPassword("CPI12345!!");
 		

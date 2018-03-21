@@ -21,7 +21,7 @@
 	</head>
 	<body>
 		<input type="hidden" id="contextPath" value="${pageContext.request.contextPath}">
-		<div id="container" class="dtbl-container" style="width: 800px; height: 400px;">
+		<div id="container" class="dtbl-container" style="width: 700px; height: 400px;">
 			<table id="table-test" class="cell-border compact hover" style="width: 100%; border-bottom: 1px solid #ddd;">
 				<thead>
 					<tr>
@@ -31,7 +31,7 @@
 				</thead>
 			</table>
 		</div>
-		<div id="text" style="border: 1px solid black; width: 800px; height: 25px; margin-bottom: 10px;"></div>
+		<div id="text" style="border: 1px solid black; width: 800px; min-height: 25px; margin-bottom: 10px; font-size: 11px;"></div>
 	</body>
 	<script type="text/javascript" src="js/test.js"></script>
 </html>

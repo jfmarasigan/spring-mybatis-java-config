@@ -5,6 +5,8 @@ public class DataTableRequestParams {
 
 	private Integer start;
 
+	private Integer end;
+
 	private Integer length;
 
 	private String sortColumn;
@@ -20,22 +22,18 @@ public class DataTableRequestParams {
 	}
 
 	public Integer getStart() {
-		System.out.println("initStart:" + this.start);
-		Integer start = this.start == null ? 0 : this.start;
-		return start + 1;
+		return nvl(this.start, 1);
 	}
 
 	public void setStart(Integer start) {
-		System.out.println("setStart: " + start);
 		this.start = start;
 	}
 
 	public Integer getLength() {
-		return length;
+		return nvl(this.length, 10);
 	}
 
 	public void setLength(Integer length) {
-		System.out.println("setLength: " + length);
 		this.length = length;
 	}
 
@@ -55,10 +53,16 @@ public class DataTableRequestParams {
 		this.ascDescFlg = ascDescFlg;
 	}
 
-	public Integer getEnd() {
-		Integer start = this.start == null ? 1 : this.start;
-		Integer length = this.length == null ? 10 : this.length;
-		return start + length;
+	public Integer getEnd() {		
+		return nvl(this.end, this.getStart() + this.getLength());
 	}
 
+	public void setEnd(Integer end) {
+		this.end = end;
+	}
+
+	public <T> T nvl(T value, T replacement) {
+		return value != null ? value : replacement;
+	}
+	
 }

@@ -7,7 +7,7 @@
 		<link rel="stylesheet" type="text/css" href="css/modal.css">
 		<link rel="stylesheet" type="text/css" href="css/datatables.custom.css">
 		
-		<script type="text/javascript" src="js/jquery.min.js"></script>
+		<!-- <script type="text/javascript" src="js/jquery.min.js"></script> -->
 		<script type="text/javascript" src="js/datatables.min.js"></script>
 		<script type="text/javascript" src="js/dataTables.select.min.js"></script>
 		<script type="text/javascript" src="js/dataTables.pagination.input.js"></script>
@@ -21,6 +21,7 @@
 	</head>
 	<body>
 		<input type="hidden" id="contextPath" value="${pageContext.request.contextPath}">
+		<button type="button" id="btn-click">Reload test</button>
 		<div id="container" class="dtbl-container" style="width: 800px; height: 400px;">
 			<table id="table-test" class="cell-border compact hover" style="width: 100%; border-bottom: 1px solid #ddd;">
 				<thead>

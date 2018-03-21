@@ -1,7 +1,5 @@
 package com.app.controllers;
 
-import java.io.IOException;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,15 +20,19 @@ public class ValidatorUtilityController {
 	}
 
 	/**
+	 * @param filter name of "field" that requires validation
 	 * @param keyword main keyword to be validated
 	 * @param optKeyword secondary keyword for validation (for example when comparing 2 date instances)
 	 * @param filterType string that denotes the field type to be used when validating
 	 * */
 	@RequestMapping(value = { "validate" })
-	public ResponseEntity<String> validateFilter(String keyword, String optKeyword, String filterType) {
-		String result = service.validate(keyword, optKeyword, FieldTypes.valueOf(filterType));
+	public ResponseEntity<String> validateFilter(String filter, String keyword, String optKeyword, String filterType) {
 		HttpStatus status = HttpStatus.OK;
+		
+		String result = service.validate(keyword, optKeyword, FieldTypes.valueOf(filterType));
+				
 		if (!"valid".equals(result)) {
+			result = filter + " " + result;
 			status = HttpStatus.NOT_ACCEPTABLE;
 		}
 		return new ResponseEntity<>(result, status);

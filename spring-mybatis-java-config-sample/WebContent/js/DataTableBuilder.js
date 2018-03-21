@@ -38,10 +38,11 @@ var DataTableBuilder = function (container, table) {
                              '<button class="submit-filter" style="left: calc(100% - 180px);">Ok</button>'+
                          '</div>' +
                      '</div>';
-
+    
     this.dataTableGrid = null;
     this.selectedRow = null;
     
+    this.ajaxData = {};
     this.defaultFilters = {};
     this.addedFilters = {};
     this.filtersRetrieved = {};
@@ -49,8 +50,6 @@ var DataTableBuilder = function (container, table) {
     this.clearedFiltersState = false;
     this.toBeFilteredState = false;
     
-    this.taggedRecords = [];
-
     this.filterElements = {};
     
     var setFilterElements = function() {
@@ -71,6 +70,10 @@ var DataTableBuilder = function (container, table) {
         return containerDiv;
     };
 
+    this.fnOnError = function (errorThrown, jqXHR, textStatus) {
+    	throw new Error(errorThrown);
+    }
+    
     this.isEmptyAddedFilters = function() {
     	return Object.keys(util.addedFilters).length === 0 && util.addedFilters.constructor === Object;
     };
@@ -133,43 +136,6 @@ var DataTableBuilder = function (container, table) {
     	}
     };
     
-    var getColumnsForTagging = function (columns){
-    	var newCols = columns;
-    	for (var idx = 0; idx < columns.length; idx++) {
-    		if (['tag', 'display'].indexOf(columns[idx].tagOption) !== -1) {
-    			var newColDef = columns[idx];
-    			var cbx = document.createElement('input');
-				cbx.type = 'checkbox';
-				cbx.className = 'dt-tags';
-				
-    			/*if (columns[idx].tagOption === 'tag'){
-    				cbx.onclick = function () {
-    					var row = util.dataTableGrid.rows('.selected').data()[0];
-    					columns[idx].onclick(row);
-    					if (this.checked){
-    						util.taggedRecords.push(row);
-    					} else {
-    						removeTagRecordMatch(row, util.taggedRecords);
-    					}
-    				};
-    			} else*/ if (columns[idx].tagOption === 'display') {
-    				cbx.disabled = true;
-    				cbx.checked = true;
-    				//cbx.setChecked = columns[idx].setChecked;
-    			}
-    			
-    			//var cbb = new DataTableBuilder.CellCheckBox({onclick : cbx.onclick, setChecked : columns[idx].setChecked});
-    			
-    			newColDef.render = function (data, type, row){
-    				return cbx.outerHTML; //cbb.construct(data);
-    			};
-    			
-    			newCols[idx] = newColDef;
-    		}
-    	}    	
-    	return newCols;
-    };
-    
     this.renderTable = function (parameters) {
     	if (!this.isEmpty(parameters.options)){
 	        var toolbarDiv = this.constructOptionsToolbar(parameters.options);
@@ -197,9 +163,11 @@ var DataTableBuilder = function (container, table) {
         this.defaultFilters = parameters.data;
 
         this.setBeforeRender(parameters.beforeRender);
-        this.setAfterRender(parameters.afterRender, !this.isEmpty(parameters.options));
+        this.setAfterRender(parameters, !this.isEmpty(parameters.options));
         
-        //var newColumns = getColumnsForTagging(parameters.columns);
+        this.ajaxData = parameters.data || {};
+        
+        this.fnOnError = parameters.onError || this.fnOnError;
         
         this.dataTableGrid = tableObject.DataTable({
             serverSide : true,
@@ -213,9 +181,10 @@ var DataTableBuilder = function (container, table) {
             scrollCollapse: parameters.collapse ? parameters.collapse : false,
             order: [],
             ajax : {
+            	cache: true, // removes the _ parameter passed upon request
                 url : parameters.url,
                 data : function (d){
-                	Object.assign(d, parameters.data);
+                	Object.assign(d, util.ajaxData);
                 	return d;
                 },
                 type : 'GET',
@@ -224,28 +193,43 @@ var DataTableBuilder = function (container, table) {
                     return JSON.parse(json.rows);
                 },
                 error : function (jqXHR, textStatus, errorThrown){
-                	if (parameters.onError){
-                		parameters.onError(errorThrown, jqXHR, textStatus);
-                	} else {
-                		console.log(errorThrown);
-                	}
+                	util.fnOnError(errorThrown, jqXHR, textStatus);
                 }
             },
             columns: parameters.columns,
-            columnDefs : parameters.columnDefs
+            columnDefs : parameters.columnDefs,
+            initComplete: function(settings, json){
+            	util.setCbxTagging(parameters.columns);
+            }
         });
         
         return this.dataTableGrid;
     };
-
+    
+    this.setCbxTagging = function(columns){
+    	for (var i = 0; i < columns.length; i++) {
+			if (columns[i].onTag) {
+				var fnOnTag = columns[i].onTag;
+				var selector = '.dt-tags[cbx-label="' + columns[i].identifier + '"]';
+				jQuery(selector).on('click', function(){
+					var checked = this.checked;
+					var row = util.dataTableGrid.row(jQuery(this).parents('tr')).data();
+					fnOnTag(row, checked);
+				});
+			}
+		}
+    };
+    
     this.enableRowFocus = function(handler){
         var dtblGrid = this.dataTableGrid;
         tableObject.on('click', 'tr', function(p){
             jQuery(this).toggleClass('selected');
-            util.selectedRow = dtblGrid.rows('.selected').data()[0];
-            if (handler) { 
-            	handler(dtblGrid.rows('.selected').data(), p);
-            }
+	        if (jQuery(this).hasClass('selected')) {
+	        	util.selectedRow = dtblGrid.row(this).data();
+	            if (handler) { 
+	            	handler(util.selectedRow);
+	            }
+	        }
         });
 
         return dtblGrid;
@@ -253,7 +237,7 @@ var DataTableBuilder = function (container, table) {
 
     this.enableRowSelect = function (handler){
         tableObject.on('dblclick', 'tr', function(p){
-            handler(); //add row selected as param here
+            handler(util.dataTableGrid.row(this).data()); //add row selected as param here
         });
 
         return this.dataTableGrid;
@@ -261,13 +245,14 @@ var DataTableBuilder = function (container, table) {
         
     this.addFilterToList = function (filters){
     	this.addedFilters[filters.filterBy] = filters.filterKeyword;
-        containerDiv.find('.dtbl-filter-entry').val('');                    
+                    
         var filterList = '';
         for (var prop in this.addedFilters){
         	if (this.addedFilters.hasOwnProperty(prop)){
         		filterList = filterList + filters.filterSelected + '=' + this.addedFilters[prop] + ';'; 
         	}
         }
+        containerDiv.find('.dtbl-filter-entry').val('');
         containerDiv.find('.dtbl-filter-text-list').val(filterList);
     };
     
@@ -278,11 +263,12 @@ var DataTableBuilder = function (container, table) {
             filterKeyword : containerDiv.find('.dtbl-filter-entry').val().trim(),
             filterSelected : containerDiv.find('.dtbl-filter-list option:selected').text()
         };
-    	
+        
     	jQuery.ajax({
     		method : 'GET',
     		url : 'validate',
     		data : {
+    			filter : filters.filterSelected,
     			filterType : filters.filterType,
     			keyword : filters.filterKeyword
     		},
@@ -292,8 +278,8 @@ var DataTableBuilder = function (container, table) {
     			}
     		},
     		error : function (jqXHR, textStatus, errorThrown) {
-    			alert(errorThrown + ' : ' + filters.filterSelected + ' ' + jqXHR.responseText);
-    			$qs(containerDiv + ' .dtbl-filter-entry').val('');
+    			util.fnOnError(errorThrown, jqXHR, textStatus);
+    			containerDiv.find('.dtbl-filter-entry').val('');
     		}
     	});
     };
@@ -303,7 +289,7 @@ var DataTableBuilder = function (container, table) {
             throw new ReferenceError('Data table is not yet rendered', 'DataTableBuilder.js', 117);
         }
 
-        Object.assign(this.dataTableGrid.context[0].ajax.data, dataParameters);
+        this.ajaxData = dataParameters;
         this.dataTableGrid.draw();
 
         return this.dataTableGrid;
@@ -311,6 +297,9 @@ var DataTableBuilder = function (container, table) {
 
     this.setBeforeRender = function(handler){
         tableObject.on('preXhr.dt', function(e, settings, data){
+        	data.start = data.start + 1;
+        	data.end = data.start + data.length - 1;
+        	
         	if (data.order.length > 0) {
 	        	var colIndx = data.order[0]['column'];
 	        	var sortColumn = data.columns[colIndx]['data'];
@@ -339,7 +328,7 @@ var DataTableBuilder = function (container, table) {
         });
     };
 
-    this.setAfterRender = function(handler, hasOptions){
+    this.setAfterRender = function(params, hasOptions){
         tableObject.on('xhr.dt', function(e, settings, json, xhr) {
         	if (hasOptions){
 	        	util.filtersRetrieved = JSON.parse(json.filters);
@@ -353,9 +342,11 @@ var DataTableBuilder = function (container, table) {
 	                });
 	            }
         	}
-            if (handler) { 
-            	handler(json, xhr, e, settings);
+            if (params.afterRender) { 
+            	params.afterRender(json, xhr, e, settings);
             }
+            
+            util.setCbxTagging(params.columns);
         });
     };
 
@@ -421,36 +412,6 @@ var DataTableBuilder = function (container, table) {
     };
 };
 
-/*
-function renderTable : 
-parameters: {
-	id : ''    				// table id
-	url : '',  				// request url
-	data : {}, 				// request parameters
-	pageLength : 10, 		// number of rows per page,
-	vScrollLimit: '200px',   // height in which the vertical scroll will be adjusted
-	taggable : true | false, // enables checkbox tagging for table rows, default is false
-	columns : [				// column detail array of objects
-		{
-			data : '',		// name of property from json
-			colHeader : '',    // column header / title to be used
-			render : function (data, type, row){
-				// data : see above data property
-				// type :
-				// row : the whole row of data / an object in the json data source
-			}
-		}, 
-		{}
-	],
-	columnDefs : [], //
-	select: 'single' | 'multiple'
-	options : [filter, refresh],
-	enableMultiSelection : true | false,
-	beforeRender : function(data, e, settings){},
-	afterRender : function(json, xhr, e, settings){}
-}
-*/
-
 DataTableBuilder.CellCheckBox = function (args) {
 	this.setChecked = args.setChecked;
 	this.editable = args.editable;
@@ -458,7 +419,7 @@ DataTableBuilder.CellCheckBox = function (args) {
 	
 	this.construct = function (data){
 		if (['', null, undefined].indexOf(this.cbxLabel) !== -1){
-			throw new ReferenceError('identifier should be defined in your column definitions'); 
+			throw new ReferenceError('identifier should be defined in the column definition'); 
 		}
 		
 		var checked = this.setChecked && this.setChecked(data) ? ' checked ' : '';
