@@ -16,6 +16,7 @@ import com.app.service.UserService;
 import com.app.tablefilters.UsersFilters;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -81,7 +82,9 @@ public class UserController {
 		List<User> users = service.getAll1(params);
 		System.out.println(service.getTotalRecords(users));
 		root.put("last_page", service.getTotalPages(service.getTotalRecords(users), 10));
-		root.put("data", JSON_MAPPER.writeValueAsString(users));
+		root.put("count", service.getTotalRecords(users));
+		ArrayNode data = JSON_MAPPER.valueToTree(users);
+		root.putArray("data").addAll(data);
 		root.put("filters", JSON_MAPPER.writeValueAsString(UsersFilters.values()));
 		return new ResponseEntity<>(JSON_MAPPER.writeValueAsString(root), HttpStatus.OK);
 	}

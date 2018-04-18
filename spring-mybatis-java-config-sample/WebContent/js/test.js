@@ -7,9 +7,8 @@ function lpad(minDigits, number){
 testDT.renderTable({
 	url: 'giacs311/show-giacs311',
 	columns : [
-		{
+		/*{
 			data: 'glAcctCode',
-			width: '288px',
 			render: function (data, type, row){
 				return row.glAcctCategory + ' - ' + lpad(2, parseInt(row.glControlAcct)) +
 						' - ' + lpad(2, parseInt(row.glSubAcct1)) + 
@@ -21,15 +20,25 @@ testDT.renderTable({
 						' - ' + lpad(2, parseInt(row.glSubAcct7))
 						;
 			}
-		},
-		{ 
-			data: 'glAcctName',
-			width: '350px'
-		}
+		},*/
+		{ data: 'glAcctCategory' },
+		{ data: 'glControlAcct' },
+		{ data: 'glSubAcct1' },
+		{ data: 'glSubAcct2' },
+		{ data: 'glSubAcct3' },
+		{ data: 'glSubAcct4' },
+		{ data: 'glSubAcct5' },
+		{ data: 'glSubAcct6' },
+		{ data: 'glSubAcct7' },
+		{ data: 'glAcctName', width: '340px' }
 	],
 	options: ['filter', 'refresh'],
 	vScrollLimit : '240px',
-	collapse : false
+	collapse : false,
+	columnDefs : [
+		{ className: 'dt-body-right', targets: [0,1,2,3,4,5,6,7,8] },
+		{ width: '40px', targets: [0,1,2,3,4,5,6,7,8] }		
+	]
 });
 
 testDT.enableRowFocus(function(row){

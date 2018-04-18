@@ -22,7 +22,7 @@
 	<body>
 		<input type="hidden" id="contextPath" value="${pageContext.request.contextPath}">
 		<button type="button" id="btn-click">Reload test</button>
-		<div id="container" class="dtbl-container" style="width: 800px; height: 400px;">
+		<div id="container" class="dtbl-container" style="width: 800px; height: 340px;">
 			<table id="table-test" class="cell-border compact hover" style="width: 100%; border-bottom: 1px solid #ddd;">
 				<thead>
 					<tr>

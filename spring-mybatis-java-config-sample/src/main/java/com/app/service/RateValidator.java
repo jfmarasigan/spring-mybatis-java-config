@@ -1,6 +1,10 @@
 package com.app.service;
 
-public class RateValidator {
+import java.util.Map;
+
+import com.app.tablefilters.FieldTypes;
+
+public class RateValidator implements Validator {
 
 	public String validate(String keyword) {
 		return this.validate(keyword, 0.0);
@@ -17,5 +21,12 @@ public class RateValidator {
 		}	
 		
 		return "valid";
+	}
+
+	@Override
+	public String validate(Map<String, String> validationParams, FieldTypes fieldType) {
+		String start = validationParams.get("start");
+		Double startNum = start != null ? Double.parseDouble(start) : 0.0; 
+		return this.validate(validationParams.get("keyword"), startNum);
 	}
 }

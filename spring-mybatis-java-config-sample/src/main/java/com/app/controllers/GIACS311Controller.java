@@ -18,7 +18,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 @Controller
-@RequestMapping(value = { "giacs311" })
+@RequestMapping(value = { "giacs311", "/ac/giacs311" })
 public class GIACS311Controller {
 
 	private GIACS311Service service;

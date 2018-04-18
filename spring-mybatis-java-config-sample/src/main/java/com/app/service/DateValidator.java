@@ -4,8 +4,11 @@ import java.text.ParseException;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
 
-public class DateValidator {
+import com.app.tablefilters.FieldTypes;
+
+public class DateValidator implements Validator {
 	
 	private String dateFormat;
 	
@@ -53,5 +56,20 @@ public class DateValidator {
 		} catch (ParseException e) {
 			return "Error parsing date : " + e.getMessage();
 		}
+	}
+
+	@Override
+	public String validate(Map<String, String> validationParams, FieldTypes fieldType) {
+		String keyword = validationParams.get("keyword");
+		String startDate = validationParams.get("startDate");
+		String endDate = validationParams.get("endDate");
+		
+		if (FieldTypes.FORMATTED_DATE.equals(fieldType)) {
+			return this.validate(keyword);
+		} else if (FieldTypes.DATE_RANGE.equals(fieldType)) {
+			return this.validDateRange(startDate, endDate);
+		}
+		
+		return "Invalid or unhandled fileter type validation";
 	}
 }

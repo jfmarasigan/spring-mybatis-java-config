@@ -14,7 +14,8 @@ public class ValidatorUtilityImpl implements ValidatorUtility {
 		}
 		if (FieldTypes.NONE != filterType && !keyword.matches(filterType.getRegexMatcher())) {
 			return filterType.getNotMatchMessage();
-		}		
+		}
+		
 		if (FieldTypes.FORMATTED_DATE == filterType) {
 			return new DateValidator().validate(keyword);
 		} else if (FieldTypes.DATE_RANGE == filterType) {

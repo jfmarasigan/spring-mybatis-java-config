@@ -13,8 +13,8 @@
 			
 			#sample-table {
 				width: 800px;
-				height: 150px;
-				border: 1px solid black;
+				height: 250px;
+				/* border: 1px solid black; */
 			}
 			
 			.tabulator {
@@ -66,6 +66,7 @@
 		</style>
 	</head>
 	<body>
+	<button type="button" id="trigger">Trigger</button>
 	<div id="main">
 		<div id="sample-table">
 		
@@ -74,4 +75,6 @@
 	</div>
 	</body>
 </html>
+
+<script type="text/javascript" src="js/tabulator.builder.js"></script>
 <script type="text/javascript" src="js/tabulator-sample.js"></script>

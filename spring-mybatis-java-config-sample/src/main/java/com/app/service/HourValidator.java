@@ -1,6 +1,10 @@
 package com.app.service;
 
-public class HourValidator {
+import java.util.Map;
+
+import com.app.tablefilters.FieldTypes;
+
+public class HourValidator implements Validator {
 	
 	public String validate(String keyword) {
 		try {
@@ -23,5 +27,10 @@ public class HourValidator {
 		}
 		
 		return "valid";
+	}
+
+	@Override
+	public String validate(Map<String, String> validationParams, FieldTypes fieldType) {
+		return this.validate(validationParams.get("keyword"));
 	}
 }

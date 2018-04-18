@@ -18,8 +18,8 @@ var DataTableBuilder = function (container, table) {
     var $qs = document.querySelector.bind(document);
     
     // toolbar constants
-    var filterBtn = '<div class="dtbl-filter-btn dtbl-filter-btn-bg dtbl-toolbar-btn">Filter</div>';
-    var refreshBtn = '<div class="dtbl-reload-btn dtbl-toolbar-btn">Refresh</div>';
+    var filterBtn = '<div class="dtbl-filter-btn dtbl-filter-btn-bg dtbl-toolbar-btn"><span>Filter</span></div>';
+    var refreshBtn = '<div class="dtbl-reload-btn dtbl-toolbar-btn"><span>Refresh</span></div>';
 
     var filterMenu = '<div class="dtbl-filter-menu">' +
                          '<div style="height: 25px; width: inherit; margin: 10px 15px 10px 30px;">' + 
@@ -38,7 +38,7 @@ var DataTableBuilder = function (container, table) {
                              '<button class="submit-filter" style="left: calc(100% - 180px);">Ok</button>'+
                          '</div>' +
                      '</div>';
-    
+
     this.dataTableGrid = null;
     this.selectedRow = null;
     
@@ -94,14 +94,15 @@ var DataTableBuilder = function (container, table) {
         var toolbar = '<div class="dtbl-toolbar">';
 
         if (options.indexOf('filter') !== -1){
+        	toolbar = toolbar + filterMenu;
             toolbar = toolbar + filterBtn;
         }
         if (options.indexOf('refresh') !== -1){
             toolbar = toolbar + refreshBtn;
         }
-        if (options.indexOf('filter') !== -1){
+        /*if (options.indexOf('filter') !== -1){
             toolbar = toolbar + filterMenu;
-        }
+        }*/
         toolbar = toolbar + '</div>';
 
         return toolbar;
@@ -156,7 +157,7 @@ var DataTableBuilder = function (container, table) {
             containerDiv.append(table);
             tableObject = jQuery('#' + parameters.id);
         }
-
+        
         var paramLen = parameters.pageLength;
         var pLength = isNaN(paramLen) && parseInt(paramLen) > 0 ? 10 : paramLen;
 
@@ -171,10 +172,12 @@ var DataTableBuilder = function (container, table) {
         
         this.dataTableGrid = tableObject.DataTable({
             serverSide : true,
+            processing : true,
             pageLength : pLength,
             lengthChange : false,
             searching : false,
             pagingType : 'input',
+            orderCellsTop: true,
             select: parameters.select ? parameters.select : 'single',
             scrollX: true,
             scrollY : parameters.vScrollLimit ? parameters.vScrollLimit : '',
@@ -200,22 +203,38 @@ var DataTableBuilder = function (container, table) {
             columnDefs : parameters.columnDefs,
             initComplete: function(settings, json){
             	util.setCbxTagging(parameters.columns);
+            	
+            	if (parameters.options){
+    	        	util.filtersRetrieved = JSON.parse(json.filters);
+    	            if (containerDiv.find('.dtbl-filter-list option').length === 0) {
+    	                jQuery.each(util.filtersRetrieved, function(index, value) {
+    	                	var option = document.createElement('option');
+    	                    option.value = value.key;
+    	                    option.text = value.optName;
+    	                    option.setAttribute('filter-type', value.filterType);
+    	                    $qs(container + ' .dtbl-filter-list').appendChild(option);
+    	                });
+    	            }
+            	}
             }
         });
         
         return this.dataTableGrid;
     };
     
-    this.setCbxTagging = function(columns){
+    this.setCbxTagging = function(columns){    	
+    	function tagCbx(fnOnTag, selector){
+    		jQuery(selector).click(function(){
+    			var row = util.dataTableGrid.row(jQuery(this).parents('tr')).data();
+    			fnOnTag(row, this.checked);
+    		});
+    	}
+    	
     	for (var i = 0; i < columns.length; i++) {
 			if (columns[i].onTag) {
 				var fnOnTag = columns[i].onTag;
 				var selector = '.dt-tags[cbx-label="' + columns[i].identifier + '"]';
-				jQuery(selector).on('click', function(){
-					var checked = this.checked;
-					var row = util.dataTableGrid.row(jQuery(this).parents('tr')).data();
-					fnOnTag(row, checked);
-				});
+				tagCbx(fnOnTag, selector);
 			}
 		}
     };
@@ -223,8 +242,7 @@ var DataTableBuilder = function (container, table) {
     this.enableRowFocus = function(handler){
         var dtblGrid = this.dataTableGrid;
         tableObject.on('click', 'tr', function(p){
-            jQuery(this).toggleClass('selected');
-	        if (jQuery(this).hasClass('selected')) {
+	        if (jQuery(this).toggleClass('selected').hasClass('selected')) {
 	        	util.selectedRow = dtblGrid.row(this).data();
 	            if (handler) { 
 	            	handler(util.selectedRow);
@@ -237,7 +255,7 @@ var DataTableBuilder = function (container, table) {
 
     this.enableRowSelect = function (handler){
         tableObject.on('dblclick', 'tr', function(p){
-            handler(util.dataTableGrid.row(this).data()); //add row selected as param here
+            handler(util.dataTableGrid.row(this).data());
         });
 
         return this.dataTableGrid;
@@ -266,7 +284,7 @@ var DataTableBuilder = function (container, table) {
         
     	jQuery.ajax({
     		method : 'GET',
-    		url : 'validate',
+    		url : 'validate-field',
     		data : {
     			filter : filters.filterSelected,
     			filterType : filters.filterType,
@@ -296,7 +314,7 @@ var DataTableBuilder = function (container, table) {
     };
 
     this.setBeforeRender = function(handler){
-        tableObject.on('preXhr.dt', function(e, settings, data){
+        tableObject.on('preXhr.dt', function(e, settings, data){        	
         	data.start = data.start + 1;
         	data.end = data.start + data.length - 1;
         	
@@ -329,25 +347,11 @@ var DataTableBuilder = function (container, table) {
     };
 
     this.setAfterRender = function(params, hasOptions){
-        tableObject.on('xhr.dt', function(e, settings, json, xhr) {
-        	if (hasOptions){
-	        	util.filtersRetrieved = JSON.parse(json.filters);
-	            if (containerDiv.find('.dtbl-filter-list option').length === 0) {
-	                jQuery.each(util.filtersRetrieved, function(index, value) {
-	                	var option = document.createElement('option');
-	                    option.value = value.key;
-	                    option.text = value.optName;
-	                    option.setAttribute('filter-type', value.filterType);
-	                    $qs(container + ' .dtbl-filter-list').appendChild(option);
-	                });
-	            }
-        	}
-            if (params.afterRender) { 
+    	if (params.afterRender) {
+	    	tableObject.on('xhr.dt', function(e, settings, json, xhr) {     
             	params.afterRender(json, xhr, e, settings);
-            }
-            
-            util.setCbxTagging(params.columns);
-        });
+	        });
+    	}
     };
 
     this.initializeEventHandlers = function (options, id){    	

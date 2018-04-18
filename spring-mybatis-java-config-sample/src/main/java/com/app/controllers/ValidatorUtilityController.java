@@ -25,7 +25,7 @@ public class ValidatorUtilityController {
 	 * @param optKeyword secondary keyword for validation (for example when comparing 2 date instances)
 	 * @param filterType string that denotes the field type to be used when validating
 	 * */
-	@RequestMapping(value = { "validate" })
+	@RequestMapping(value = { "validate-field" })
 	public ResponseEntity<String> validateFilter(String filter, String keyword, String optKeyword, String filterType) {
 		HttpStatus status = HttpStatus.OK;
 		

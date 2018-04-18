@@ -25,8 +25,19 @@
 			<table id="table-test" class="cell-border compact hover" style="width: 100%; border-bottom: 1px solid #ddd;">
 				<thead>
 					<tr>
-						<th>GL Account Code</th>
-						<th>GL Account Name</th>
+						<th colspan="9" style="width: 338px;">GL Account Code</th>
+						<th rowspan="2" style="width: 328px;">GL Account Name</th>
+					</tr>
+					<tr style="display: none;">
+						<th>cat</th>
+						<th>ctrl</th>
+						<th>1</th>
+						<th>2</th>
+						<th>3</th>
+						<th>4</th>
+						<th>5</th>
+						<th>6</th>
+						<th>7</th>
 					</tr>
 				</thead>
 			</table>

@@ -73,7 +73,7 @@ testDT.renderTable({
 
 //on cell focus
 testDT.enableRowFocus(function (row){
-	console.log('click triggered.');
+	console.log(row);
 });
 
 //on dbl click
