@@ -6,7 +6,7 @@ public class WebInitializer extends AbstractAnnotationConfigDispatcherServletIni
 
 	@Override
 	protected Class<?>[] getRootConfigClasses() {
-		return new Class[] { MyBatisConfig.class };
+		return new Class[] { RootConfig.class };
 	}
 
 	@Override

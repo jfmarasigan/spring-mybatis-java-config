@@ -14,4 +14,8 @@ public interface UserMapper {
 	User getUser(String userId);
 	
 	String getOne(String userId);
+
+	void testSave();
+	
+	void testSave2();
 }

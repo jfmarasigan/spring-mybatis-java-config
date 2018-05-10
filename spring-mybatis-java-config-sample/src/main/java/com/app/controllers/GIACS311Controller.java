@@ -8,12 +8,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.app.entity.DataTableResponseEntity;
 import com.app.entity.GIACChartOfAccts;
 import com.app.entity.GIACS311DTParams;
 import com.app.service.GIACS311Service;
 import com.app.tablefilters.GIACS311TGFilters;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -33,14 +35,30 @@ public class GIACS311Controller {
 	public ResponseEntity<String> getGIACS311(GIACS311DTParams params) throws JsonProcessingException {
 		ObjectNode root = JsonNodeFactory.instance.objectNode();
 		List<GIACChartOfAccts> users = service.getGIACS311(params);
+
+		Integer recordCount = service.getTotalRecords(users);
 		
-		root.put("draw", params.getDraw());
-		root.put("recordsTotal", service.getTotalRecords(users));
-		root.put("recordsFiltered", service.getTotalRecords(users));
-		root.put("rows", MAPPER.writeValueAsString(users));
-		root.put("filters", MAPPER.writeValueAsString(GIACS311TGFilters.values()));
+		DataTableResponseEntity<GIACChartOfAccts, GIACS311TGFilters> dtre = new DataTableResponseEntity<>(
+				params.getDraw(), recordCount, recordCount, users, GIACS311TGFilters.values());
 		
+		root.setAll(dtre.toJSONNode());
+
 		return new ResponseEntity<>(MAPPER.writeValueAsString(root), HttpStatus.OK);
 	}
 
+	@RequestMapping(value = { "tb-giacs311" })
+	public ResponseEntity<String> giacs311(GIACS311DTParams params) throws JsonProcessingException {
+		ObjectNode root = JsonNodeFactory.instance.objectNode();
+		List<GIACChartOfAccts> users = service.getGIACS311(params);
+		
+		root.put("count", service.getTotalRecords(users));
+		root.put("rows", MAPPER.writeValueAsString(users));
+		ArrayNode data = MAPPER.valueToTree(users);
+		root.putArray("data").addAll(data);
+		ArrayNode filters = MAPPER.valueToTree(GIACS311TGFilters.values());
+		root.putArray("filters").addAll(filters);
+		root.put("last_page", 295);
+		
+		return new ResponseEntity<>(MAPPER.writeValueAsString(root), HttpStatus.OK);
+	}
 }

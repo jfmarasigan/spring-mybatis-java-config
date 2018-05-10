@@ -20,4 +20,6 @@ public interface UserService {
 	Integer getTotalRecords(List<User> users);
 	
 	Integer getTotalPages(int recordCount, int pageSize);
+	
+	void testSave() throws Exception;
 }

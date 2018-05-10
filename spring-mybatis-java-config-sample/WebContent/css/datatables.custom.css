@@ -17,6 +17,8 @@ th:first-child {
 	padding: 3px;
 	box-sizing: border-box;
 	font-size: 11px;
+	font-family: Arial, Helvetica, sans-serif;
+	text-align: initial;
 }
 
 .dtbl-toolbar {
@@ -65,17 +67,18 @@ th:first-child {
 
 .dtbl-filter-menu {
 	width: 445px;
-	height: 160px;
+	height: 165px;
 	background-color: #f0f0f0;
 	display: none;
-	position: relative;
-	z-index: 3;
-	top: 21px;
+	position: absolute;
+	z-index: 1;
+	top: 23px;
 	left: calc(100% - 445px);
 	margin-top: 2px;
 	border: 1px solid #456179;
 	border-radius: 3px;
 	color: #456179;
+	box-sizing: border-box;
 }
 
 .dtbl-filter-menu button {
@@ -95,6 +98,7 @@ th:first-child {
 
 .dtbl-filter-menu button:disabled {
 	background-color: #C0C0C0;
+	border-color: #c0c0c0;
 }
 
 .dtbl-filter-menu input[type=text], .dtbl-filter-menu select {
@@ -112,11 +116,11 @@ th:first-child {
 
 .dtbl-filter-menu label, .dtbl-filter-menu span {
 	font-family: Arial;
+	float: none;
 }
 
-.dtbl-filter-menu input[type=text], 
-.dtbl-filter-menu select,
-.dtbl-filter-menu textarea {
+.dtbl-filter-menu input[type=text], .dtbl-filter-menu select,
+	.dtbl-filter-menu textarea {
 	font-family: Verdana;
 	font-size: 11px;
 }

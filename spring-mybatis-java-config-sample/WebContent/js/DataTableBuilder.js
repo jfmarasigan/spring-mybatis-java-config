@@ -193,7 +193,7 @@ var DataTableBuilder = function (container, table) {
                 type : 'GET',
                 dataType: 'json',
                 dataSrc : function (json){
-                    return JSON.parse(json.rows);
+                    return json.rows; //JSON.parse(json.rows);
                 },
                 error : function (jqXHR, textStatus, errorThrown){
                 	util.fnOnError(errorThrown, jqXHR, textStatus);
@@ -205,7 +205,7 @@ var DataTableBuilder = function (container, table) {
             	util.setCbxTagging(parameters.columns);
             	
             	if (parameters.options){
-    	        	util.filtersRetrieved = JSON.parse(json.filters);
+    	        	util.filtersRetrieved = json.filters; //JSON.parse(json.filters);
     	            if (containerDiv.find('.dtbl-filter-list option').length === 0) {
     	                jQuery.each(util.filtersRetrieved, function(index, value) {
     	                	var option = document.createElement('option');

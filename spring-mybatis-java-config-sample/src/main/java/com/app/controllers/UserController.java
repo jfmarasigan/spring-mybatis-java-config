@@ -72,7 +72,7 @@ public class UserController {
 		root.put("recordsFiltered", service.getTotalRecords(users));
 		root.put("rows", JSON_MAPPER.writeValueAsString(users));
 		root.put("filters", JSON_MAPPER.writeValueAsString(UsersFilters.values()));
-		return new ResponseEntity<String>(JSON_MAPPER.writeValueAsString(root), HttpStatus.OK);
+		return new ResponseEntity<>(JSON_MAPPER.writeValueAsString(root), HttpStatus.OK);
 	}
 	
 	@RequestMapping("/get-users")
@@ -85,7 +85,8 @@ public class UserController {
 		root.put("count", service.getTotalRecords(users));
 		ArrayNode data = JSON_MAPPER.valueToTree(users);
 		root.putArray("data").addAll(data);
-		root.put("filters", JSON_MAPPER.writeValueAsString(UsersFilters.values()));
+		ArrayNode filters = JSON_MAPPER.valueToTree(UsersFilters.values());
+		root.putArray("filters").addAll(filters);
 		return new ResponseEntity<>(JSON_MAPPER.writeValueAsString(root), HttpStatus.OK);
 	}
 
@@ -113,5 +114,10 @@ public class UserController {
 	public String gototest() {
 		System.out.println("redirected to tabulator-test");
 		return "giacs311";
+	}
+	
+	@RequestMapping(value = {"/test1112"})
+	public void testSave() throws Exception {
+		service.testSave();
 	}
 }
