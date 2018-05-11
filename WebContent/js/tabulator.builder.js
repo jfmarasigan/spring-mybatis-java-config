@@ -1,6 +1,8 @@
 /**
- * Custom builder for Tabulator© by Oli Folkerd (<link>tabulator.info</link>)
- * 
+ * Custom builder for Tabulator by Oli Folkerd (tabulator.info)
+ * Requires Tabulator (created with version 3.5),
+ * JQuery, and a web browser with full ECMAScript 6 support
+ *
  * Created by Daniel Marasigan
  * */
 class TabulatorBuilder {
@@ -9,35 +11,35 @@ class TabulatorBuilder {
 		this.tab = jQuery(container);
 		this.tableGrid = null;
 
-		this.url = '/';	
+		this.url = '/';
 		this.clearSort = false;
 		this.ajaxData = {
 			params : null,
 			response : null
-		};	
+		};
 
 		this.initialData = {};
 		this.filters = {};
 	}
-	
+
 	nvl (value, defolt) {
 		return [null, undefined, ''].indexOf(value) !== -1 ? defolt : value;
 	}
-	
+
 	isEmpty(value) {
-		return [null, undefined, '']
+		return [null, undefined, ''].indexOf(value) !== -1;
 	}
-	
+
 	isEmptyObject(obj) {
 		return Object.keys(obj).length === 0 && obj.constructor === Object;
 	}
-	
+
 	onError (e) {
 		throw new Error(e);
 	}
-	
+
 	createPagingInputBox (table, onenter) {
-		let pageNoField = document.createElement('input');
+		const pageNoField = document.createElement('input');
 		pageNoField.type = 'text';
 		pageNoField.id = 'pager-num';
 		pageNoField.style.width = '33px';
@@ -46,26 +48,26 @@ class TabulatorBuilder {
 				onenter(table, this.value);
 			}
 		};
-			
+
 		return pageNoField;
 	}
 
-	createPagingInfoBox (args) {
-		this.tab.find('#pager-info').remove();		
-		let pageInfoBox = document.createElement('div');
+	createPagingInfoBox () {
+		this.tab.find('#pager-info').remove();
+		const pageInfoBox = document.createElement('div');
 		pageInfoBox.id = 'pager-info';
 		pageInfoBox.style.float = 'left';
 		pageInfoBox.style.clear = 'both';
 		pageInfoBox.style.paddingTop = '0.30em';
-		
+
 		return pageInfoBox;
 	}
 
 	setPagingInfo (count) {
-		let start = this.ajaxData.params.start;
-		let end = this.ajaxData.params.start - 1 + count;
-		let totalCount = this.ajaxData.response.count;
-		
+		const start = this.ajaxData.params.start;
+		const end = this.ajaxData.params.start - 1 + count;
+		const totalCount = this.ajaxData.response.count;
+
 		if (this.nvl(start, '') === '') {
 			console.warn('start does not exist');
 		}
@@ -74,9 +76,9 @@ class TabulatorBuilder {
 		}
 		if (this.nvl(totalCount, '') === ''){
 			console.warn('Total count does not exist. Check the response if there is a count reponse parameter.');
-		}		
-		
-		let infoMsg = 'Showing ' + start + ' to ' + end + ' of ' + totalCount + ' records';
+		}
+
+		const infoMsg = 'Showing ' + start + ' to ' + end + ' of ' + totalCount + ' records';
 		this.tab.find('#pager-info').html(infoMsg);
 	}
 
@@ -85,22 +87,22 @@ class TabulatorBuilder {
 	}
 
 	renderTable(settings) {
-		let util = this;
-		
+		const util = this;
+
 		this.url = settings.url;
 		this.initialData = settings.data;
-		
-		let id = this.tab.prop('id') + '-content';		
+
+		const id = this.tab.prop('id') + '-content';
 		this.tab.append('<div id="' + id +'" style="height : calc(100% - 25px);"></div>');
-		
+
 		this.tableGrid = jQuery('#' + id);
-		let tables = this.tableGrid;
-		
+		const tables = this.tableGrid;
+
 		this.tab.prepend(util.createToolbar(settings.options));
 		this.attachEventToToolbar(settings.options);
-		
+
 		this.addSortForColumnGroups(settings.columns);
-		
+
 		tables.tabulator({
 			layout : "fitColumns",
 			height : 'calc(100% - 25px)',
@@ -141,16 +143,16 @@ class TabulatorBuilder {
 				settings.rowDblClick(row, e);
 			},
 			tableBuilt : function() {
-				let pagingInfo = util.createPagingInfoBox();
-				let pagingInput = util.createPagingInputBox(tables, function (tab, value){
+				const pagingInfo = util.createPagingInfoBox();
+				const pagingInput = util.createPagingInputBox(tables, function (tab, value){
 					tab.tabulator('setPage', parseInt(value));
 				});
 				tables.find('.tabulator-footer').prepend(pagingInfo);
 				tables.find('.tabulator-pages').remove();
 				jQuery(pagingInput).insertAfter(tables.find('.tabulator-page[data-page="prev"]'));
-				
-				let colGroups = jQuery('.tabulator-col.tabulator-col-group');				
-				colGroups.find('>:first-child').append('<div class="tabulator-arrow"></div>');				
+
+				const colGroups = jQuery('.tabulator-col.tabulator-col-group');
+				colGroups.find('>:first-child').append('<div class="tabulator-arrow"></div>');
 				colGroups.addClass('tabulator-sortable');
 			},
 			pageLoaded : function(pageNo){
@@ -164,32 +166,32 @@ class TabulatorBuilder {
 				}
 			}
 		});
-		
+
 		if (settings.onError) {
 			this.onError = settings.onError;
 		}
 	}
-	
+
 	addFilterMenu () {
-		let filters = this.ajaxData.response.filters;		
+		const filters = this.ajaxData.response.filters;
 		if (this.tab.find('.dtbl-filter-list option').length > 0) {
 			return false;
-		}		
+		}
 		for (const filter of filters){
-			let option = '<option value="' + filter.key+'" filter-type="' + filter.filterType + '">' 
+			const option = '<option value="' + filter.key+'" filter-type="' + filter.filterType + '">'
 				+ filter.optName + '</option>';
 			this.tab.find('.dtbl-filter-list').append(option);
 		}
 	}
-	
+
 	addSortForColumnGroups(columns) {
-		let builder = this;
-		
-		for (let data of columns){
+		const builder = this;
+
+		for (const data of columns){
 			if (data.columns !== undefined && data.columns.length > 0) {
-				data.headerClick = function (e, column) {
-					let header = jQuery('.tabulator-col.tabulator-col-group[aria-title="'+ this.title +'"]');
-					let sort = header.attr('aria-sort');
+				data.headerClick = function () {
+					const header = jQuery('.tabulator-col.tabulator-col-group[aria-title="'+ this.title +'"]');
+					const sort = header.attr('aria-sort');
 					if (['none', 'asc', 'desc'].indexOf(sort) !== -1) {
 						if (sort === 'asc') {
 							header.attr('aria-sort','desc');
@@ -203,68 +205,62 @@ class TabulatorBuilder {
 			}
 		}
 	}
-	
+
 	resetSortForColumnGroups(){
 		jQuery('.tabulator-col.tabulator-col-group').attr('aria-sort', 'none');
 	}
-	
+
 	/**
-	 * retrieve all rows in the current page 
+	 * retrieve all rows in the current page
 	 * */
 	getCurrentRows() {
-		let rows = { 
-			length : 0, 
-			rows : [] 
-		};		
-		let currentRows = this.tableGrid.tabulator('getRows');
-		rows.length = currentRows.length;		
+		const rows = {
+			length : 0,
+			rows : []
+		};
+		const currentRows = this.tableGrid.tabulator('getRows');
+		rows.length = currentRows.length;
 		for (const data of currentRows) {
 			rows.rows.push(data.row.data);
-		}		
+		}
 		return rows;
 	}
-	
+
 	/**
 	 * retrieve all rows selected
 	 * */
 	getSelectedRow() {
-		let selected = this.tableGrid.tabulator('getSelectedRows');
-		let rowData = [];		
+		const selected = this.tableGrid.tabulator('getSelectedRows');
+		const rowData = [];
 		for (const data of selected) {
 			rowData.push(data.row.data);
-		}		
+		}
 		return rowData;
 	}
-	
+
 	/**
 	 * reloads / refreshes the current table with or without additional data
 	 * */
 	reload (addtlData, clearSort) {
-		let data = {};
-
-		let initData = this.initialData;
+		const data = {};
+		const initData = this.initialData;
+		const filters = this.getFilters();
+		const added = addtlData || {};
 		Object.assign(data, initData);
-		
-		let filters = this.getFilters();
 		Object.assign(data, filters);
-		
-		let added = addtlData || {};
 		Object.assign(data, added);
-		
 		this.clearSort = clearSort || false;
-
 		if (clearSort === true) {
 			this.resetSortForColumnGroups();
 		}
-		
 		this.tableGrid.tabulator('setData', this.url, data);
 	}
-	
+
 	createToolbar (options) {
-		let filterBtn = '<div class="dtbl-filter-btn dtbl-filter-btn-bg dtbl-toolbar-btn"><span>Filter</span></div>';
-		let refreshBtn = '<div class="dtbl-reload-btn dtbl-toolbar-btn"><span>Refresh</span></div>';
-		
-		let filterMenu = '<div class="dtbl-filter-menu">' +
+		const filterBtn = '<div class="dtbl-filter-btn dtbl-filter-btn-bg dtbl-toolbar-btn"><span>Filter</span></div>';
+		const refreshBtn = '<div class="dtbl-reload-btn dtbl-toolbar-btn"><span>Refresh</span></div>';
+
+		const filterMenu = '<div class="dtbl-filter-menu">' +
 					        '<div style="height: 25px; width: inherit; margin: 10px 15px 10px 30px;">' +
 					            '<label for="dtbl-filter-list">Filter By: </label>' +
 					            '<select class="dtbl-filter-list" style="margin-right: 20px;"></select>' +
@@ -281,7 +277,7 @@ class TabulatorBuilder {
 					            '<button class="submit-filter" style="left: calc(100% - 180px);" >Ok</button>'+
 					        '</div>' +
 					    '</div>';
-	    
+
 		let toolbar = '<div class="dtbl-toolbar">';
 
         if (options.indexOf('filter') !== -1){
@@ -292,13 +288,13 @@ class TabulatorBuilder {
             toolbar = toolbar + refreshBtn;
         }
         toolbar = toolbar + '</div>';
-        
+
         return toolbar;
 	}
-	
+
 	getFilters () {
-		let filterParams = {};
-		let _filters = this.filters;		
+		const filterParams = {};
+		const _filters = this.filters;
 		for (const prop in _filters) {
 			if (_filters.hasOwnProperty(prop)){
 				filterParams[prop] = _filters[prop].keyword;
@@ -306,48 +302,48 @@ class TabulatorBuilder {
 		}
 		return filterParams;
 	}
-	
+
 	attachEventToToolbar (options) {
 		if (options === undefined || options.length < 1) {
 			return false;
-		}		
-		let table = this.tab;
-		let builder = this;
-		
+		}
+		const table = this.tab;
+		const builder = this;
+
 		if (options.indexOf('filter') !== -1) {
 			table.find('.dtbl-filter-btn').click(function() {
 				table.find('.dtbl-filter-menu').toggle();
 			});
-			
+
 			table.find('.add-filter').click(function() {
 				builder.addFilter();
 			});
-			
+
 			table.find('.dtbl-filter-entry').keydown(function (event) {
 				if (event.keyCode === 13 && this.value.trim() !== ''){
 					builder.addFilter();
 				}
 			});
-			
+
 			table.find('.clear-filter').click(function() {
 				builder.clearFilter(this);
 			});
-			
+
 			table.find('.submit-filter').click(function() {
 				builder.submitFilter();
 			});
 		}
-		
+
 		if (options.indexOf('refresh') !== -1) {
 			table.find('.dtbl-reload-btn').click(function () {
 				builder.reload({}, true);
 			});
 		}
 	}
-	
+
 	addToFilters (filter) {
 		this.filters[filter.selected] = filter;
-		let table = this.tab;
+		const table = this.tab;
 		let text = '';
 		for (const prop in this.filters) {
 			if (this.filters.hasOwnProperty(prop)){
@@ -359,10 +355,10 @@ class TabulatorBuilder {
 		table.find('.dtbl-filter-text-list').val(text);
 		table.find('.clear-filter').prop('disabled', false);
 	}
-	
+
 	validateAddedFilter (filter) {
-		let builder = this;
-		
+		const builder = this;
+
 		jQuery.ajax({
 			method : 'GET',
 			url : 'validate-field',
@@ -381,45 +377,49 @@ class TabulatorBuilder {
 			}
 		});
 	}
-	
+
 	addFilter () {
-		let table = this.tab;
-		let filter = {
+		const table = this.tab;
+		const filter = {
 			selected : table.find('.dtbl-filter-list').val(),
 			type : table.find('.dtbl-filter-list option:selected').attr('filter-type'),
 			keyword : table.find('.dtbl-filter-entry').val().trim(),
 			dspText : table.find('.dtbl-filter-list option:selected').text()
 		};
-		
+
 		if (filter.keyword === '') {
 			return false;
 		}
-		
+
 		this.validateAddedFilter(filter);
 	}
-	
+
 	submitFilter () {
 		if (!this.isEmptyObject(this.filters)){
 			this.reload();
 		}
-		let table = this.tab;
+		const table = this.tab;
 		table.find('.dtbl-filter-menu').toggle();
 	}
-	
+
 	clearFilter (thisBtn) {
 		this.filters = {};
 		this.tab.find('.dtbl-filter-text-list').val('');
 		thisBtn.disabled = true;
 	}
-	
 }
 
-class TableHTMLFactory {
-	constructor() { }
 
-	static CellCheckBox (cell, params) {
-		let rowData = cell.cell.row.data;
-		let newCbx = document.createElement('input');
+class TableHTMLFactory {
+	constructor() {
+		this.elements = {
+			'checkbox' : 'CellCheckBox'
+		};
+	}
+
+	static cellCheckBox (cell, params) {
+		const rowData = cell.cell.row.data;
+		const newCbx = document.createElement('input');
 		newCbx.id = params.id || '';
 		newCbx.type = 'checkbox';
 		newCbx.classList = params.classes || '';
@@ -430,6 +430,6 @@ class TableHTMLFactory {
 
 		return newCbx;
 	}
-	
+
 	// add other html input elements here
 }

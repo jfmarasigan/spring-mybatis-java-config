@@ -4,7 +4,7 @@
 		<script type="text/javascript" src="js/jquery.min.js"></script>
 		<script type="text/javascript" src="js/jquery-ui.min.js"></script>
 		<link href="css/tabulator_simple.min.css" rel="stylesheet">
-		<link rel="stylesheet" type="text/css" href="css/datatables.custom.css">
+		<link rel="stylesheet" type="text/css" href="css/tabulator.custom.css">
 		<script type="text/javascript" src="js/tabulator.min.js"></script>
 		<style type="text/css">
 			body {

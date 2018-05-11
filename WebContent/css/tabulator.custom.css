@@ -1,0 +1,121 @@
+
+.tabulator {
+	font-size: 11px;
+}
+
+.tabulator-col-group-cols, .tabulator-col-group-cols>div {
+	visibility: hidden;
+	height: 1px;
+}
+
+.dtbl-toolbar {
+	height: 25px;
+	width: 100%;
+	border: solid 1px #ccc;
+	background-color: #eee;
+	padding: 2px;
+	box-sizing: border-box;
+	line-height: normal;
+	position: relative;
+}
+
+.dtbl-toolbar-btn {
+	height: 98%;
+	cursor: pointer;
+	padding: 0px 5px;
+	text-align: right;
+	box-sizing: border-box;
+	border-width: 1px;
+	border-style: inset;
+	border-color: transparent;
+}
+
+.dtbl-toolbar-btn span {
+	padding: 3px 3px 3px 15px;
+}
+
+.dtbl-toolbar-btn:hover {
+	border-color: rgba(0, 0, 0, 0.1);
+	background-color: #eef;
+}
+
+.dtbl-filter-btn {
+	width: 52px;
+	float: right;
+}
+
+.dtbl-filter-btn-bg {
+	background: url(../images/funnel.png) left center no-repeat;
+}
+
+.dtbl-filter-btn-active {
+	background: url(../images/funnel_red.png) left center no-repeat;
+}
+
+.dtbl-filter-menu {
+	width: 445px;
+	height: 165px;
+	background-color: #f0f0f0;
+	display: none;
+	position: absolute;
+	z-index: 1;
+	top: 23px;
+	left: calc(100% - 445px);
+	margin-top: 2px;
+	border: 1px solid #456179;
+	border-radius: 3px;
+	color: #456179;
+	box-sizing: border-box;
+}
+
+.dtbl-filter-menu button {
+	width: 90px;
+	position: relative;
+	left: calc(100% - 90px);
+	border: solid 1px #2c4762;
+	color: #fff;
+	padding: 2px 3px 2px 4px;
+	border-radius: 3px;
+	background-color: #2c4762;
+}
+
+.dtbl-filter-menu button:hover {
+	background-color: #415c77;
+}
+
+.dtbl-filter-menu button:disabled {
+	background-color: #C0C0C0;
+	border-color: #c0c0c0;
+}
+
+.dtbl-filter-menu input[type=text], .dtbl-filter-menu select {
+	width: 142px;
+	height: 25px;
+	padding: 3px;
+	box-sizing: border-box;
+}
+
+.dtbl-filter-menu .dtbl-filter-text-list {
+	resize: none;
+	height: 35px;
+	width: 348px;
+}
+
+.dtbl-filter-menu label, .dtbl-filter-menu span {
+	font-family: Arial;
+	float: none;
+}
+
+.dtbl-filter-menu input[type=text], .dtbl-filter-menu select,
+	.dtbl-filter-menu textarea {
+	font-family: Verdana;
+	font-size: 11px;
+}
+
+.dtbl-reload-btn {
+	width: 62px;
+	float: right;
+	margin: 0 3px;
+	background: url(../images/refresh.png) left center no-repeat;
+}
+
