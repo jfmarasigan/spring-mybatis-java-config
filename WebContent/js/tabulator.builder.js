@@ -1,4 +1,8 @@
-
+/**
+ * Custom builder for Tabulator© by Oli Folkerd (<link>tabulator.info</link>)
+ * 
+ * Created by Daniel Marasigan
+ * */
 class TabulatorBuilder {
 	constructor(container) {
 		this.container = container;
@@ -6,6 +10,7 @@ class TabulatorBuilder {
 		this.tableGrid = null;
 
 		this.url = '/';	
+		this.clearSort = false;
 		this.ajaxData = {
 			params : null,
 			response : null
@@ -94,6 +99,8 @@ class TabulatorBuilder {
 		this.tab.prepend(util.createToolbar(settings.options));
 		this.attachEventToToolbar(settings.options);
 		
+		this.addSortForColumnGroups(settings.columns);
+		
 		tables.tabulator({
 			layout : "fitColumns",
 			height : 'calc(100% - 25px)',
@@ -106,10 +113,12 @@ class TabulatorBuilder {
 				params.start = ((params.page - 1) * params.size) + 1;
 				params.end = params.page * params.size;
 				if (params.sorters.length > 0) {
-					params.sortColumn = params.sorters[0]['field'];
-					params.ascDescFlg = params.sorters[0]['dir'];
+					if (!util.clearSort) {
+						params.sortColumn = params.sorters[0]['field'];
+						params.ascDescFlg = params.sorters[0]['dir'];
+					}
 					delete params.sorters;
-				}				
+				}
 				util.ajaxData.params = params;
 				return params;
 			},
@@ -138,7 +147,11 @@ class TabulatorBuilder {
 				});
 				tables.find('.tabulator-footer').prepend(pagingInfo);
 				tables.find('.tabulator-pages').remove();
-				jQuery(pagingInput).insertAfter(tables.find('.tabulator-page[data-page="prev"]'));				
+				jQuery(pagingInput).insertAfter(tables.find('.tabulator-page[data-page="prev"]'));
+				
+				let colGroups = jQuery('.tabulator-col.tabulator-col-group');				
+				colGroups.find('>:first-child').append('<div class="tabulator-arrow"></div>');				
+				colGroups.addClass('tabulator-sortable');
 			},
 			pageLoaded : function(pageNo){
 				tables.find('#pager-num').val(pageNo);
@@ -167,6 +180,32 @@ class TabulatorBuilder {
 				+ filter.optName + '</option>';
 			this.tab.find('.dtbl-filter-list').append(option);
 		}
+	}
+	
+	addSortForColumnGroups(columns) {
+		let builder = this;
+		
+		for (let data of columns){
+			if (data.columns !== undefined && data.columns.length > 0) {
+				data.headerClick = function (e, column) {
+					let header = jQuery('.tabulator-col.tabulator-col-group[aria-title="'+ this.title +'"]');
+					let sort = header.attr('aria-sort');
+					if (['none', 'asc', 'desc'].indexOf(sort) !== -1) {
+						if (sort === 'asc') {
+							header.attr('aria-sort','desc');
+							builder.reload({sortColumn : this.field, ascDescFlg : 'desc'});
+						} else {
+							header.attr('aria-sort','asc');
+							builder.reload({sortColumn : this.field, ascDescFlg : 'asc'});
+						}
+					}
+				};
+			}
+		}
+	}
+	
+	resetSortForColumnGroups(){
+		jQuery('.tabulator-col.tabulator-col-group').attr('aria-sort', 'none');
 	}
 	
 	/**
@@ -200,7 +239,7 @@ class TabulatorBuilder {
 	/**
 	 * reloads / refreshes the current table with or without additional data
 	 * */
-	reload (addtlData) {
+	reload (addtlData, clearSort) {
 		let data = {};
 
 		let initData = this.initialData;
@@ -208,9 +247,15 @@ class TabulatorBuilder {
 		
 		let filters = this.getFilters();
 		Object.assign(data, filters);
-				
+		
 		let added = addtlData || {};
 		Object.assign(data, added);
+		
+		this.clearSort = clearSort || false;
+
+		if (clearSort === true) {
+			this.resetSortForColumnGroups();
+		}
 		
 		this.tableGrid.tabulator('setData', this.url, data);
 	}
@@ -295,7 +340,7 @@ class TabulatorBuilder {
 		
 		if (options.indexOf('refresh') !== -1) {
 			table.find('.dtbl-reload-btn').click(function () {
-				builder.reload();
+				builder.reload({}, true);
 			});
 		}
 	}
@@ -386,5 +431,5 @@ class TableHTMLFactory {
 		return newCbx;
 	}
 	
-	
+	// add other html input elements here
 }

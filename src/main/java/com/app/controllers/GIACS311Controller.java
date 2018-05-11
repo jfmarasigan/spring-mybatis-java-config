@@ -52,7 +52,6 @@ public class GIACS311Controller {
 		List<GIACChartOfAccts> users = service.getGIACS311(params);
 		
 		root.put("count", service.getTotalRecords(users));
-		root.put("rows", MAPPER.writeValueAsString(users));
 		ArrayNode data = MAPPER.valueToTree(users);
 		root.putArray("data").addAll(data);
 		ArrayNode filters = MAPPER.valueToTree(GIACS311TGFilters.values());

@@ -22,11 +22,11 @@
 				font-size: 11px;
 			}
 						
-			/* .tabulator-col-group-cols, 
+			.tabulator-col-group-cols, 
 			.tabulator-col-group-cols > div {
 				visibility: hidden;
 				height: 1px;
-			} */
+			}
 		</style>
 	</head>
 	<body>
