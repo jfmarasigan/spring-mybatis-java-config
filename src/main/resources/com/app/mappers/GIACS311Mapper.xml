@@ -1,26 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.app.mappers.GIACS311Mapper">
-	<select id="getGIACS311TG" resultType="com.app.entity.GIACChartOfAccts">
-		<!--SELECT z.*, rownum
-		  FROM (
-			  SELECT a.gl_acct_id, a.gl_acct_category, a.gl_control_acct, a.gl_sub_acct_1,
-			         a.gl_sub_acct_2, a.gl_sub_acct_3, a.gl_sub_acct_4, a.gl_sub_acct_5,
-			         a.gl_sub_acct_6, a.gl_sub_acct_7, a.gl_acct_name, a.gl_acct_sname,
-			         a.leaf_tag, a.gslt_sl_type_cd, a.dr_cr_tag, a.acct_type, a.ref_acct_cd
-			    FROM giac_chart_of_accts a
-			   ORDER BY gl_acct_category, gl_control_acct, gl_sub_acct_1, gl_sub_acct_2,
-			            gl_sub_acct_3, gl_sub_acct_4, gl_sub_acct_5, gl_sub_acct_6,
-			            gl_sub_acct_7
-			   ) z
-		 WHERE rownum BETWEEN 1 AND 10 -->
-		
+	<select id="getGIACS311TG"
+		resultType="com.app.entity.GIACChartOfAccts">
+		<!--SELECT z.*, rownum FROM ( SELECT a.gl_acct_id, a.gl_acct_category, 
+			a.gl_control_acct, a.gl_sub_acct_1, a.gl_sub_acct_2, a.gl_sub_acct_3, a.gl_sub_acct_4, 
+			a.gl_sub_acct_5, a.gl_sub_acct_6, a.gl_sub_acct_7, a.gl_acct_name, a.gl_acct_sname, 
+			a.leaf_tag, a.gslt_sl_type_cd, a.dr_cr_tag, a.acct_type, a.ref_acct_cd FROM 
+			giac_chart_of_accts a ORDER BY gl_acct_category, gl_control_acct, gl_sub_acct_1, 
+			gl_sub_acct_2, gl_sub_acct_3, gl_sub_acct_4, gl_sub_acct_5, gl_sub_acct_6, 
+			gl_sub_acct_7 ) z WHERE rownum BETWEEN 1 AND 10 -->
+
 		SELECT *
-		   FROM TABLE (giacs311_pkg_copy.get_rec_list(#{queryLevel}, #{glAcctName}, #{glAcctCategory},
-		   											  #{glControlAcct}, #{glSubAcct1}, #{glSubAcct2}, #{glSubAcct3},
-		   											  #{glSubAcct4}, #{glSubAcct5}, #{glSubAcct6}, #{glSubAcct7},
-		   											  #{sortColumn}, #{ascDescFlg}, #{start}, #{end}))
+		FROM TABLE (giacs311_pkg_copy.get_rec_list(#{queryLevel},
+		#{glAcctName},
+		#{glAcctCategory},
+		#{glControlAcct}, #{glSubAcct1},
+		#{glSubAcct2}, #{glSubAcct3},
+		#{glSubAcct4}, #{glSubAcct5},
+		#{glSubAcct6}, #{glSubAcct7},
+		#{sortColumn}, #{ascDescFlg}, #{start},
+		#{end}))
 	</select>
-	
-	
+
+
 </mapper>

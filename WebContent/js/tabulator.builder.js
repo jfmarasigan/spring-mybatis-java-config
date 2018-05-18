@@ -1,5 +1,5 @@
 /**
- * Custom builder for Tabulator by Oli Folkerd (tabulator.info)
+ * Custom builder for Tabulator© by Oli Folkerd (<link>tabulator.info</link>)
  * Requires Tabulator (created with version 3.5),
  * JQuery, and a web browser with full ECMAScript 6 support
  *
@@ -12,7 +12,7 @@ class TabulatorBuilder {
 		this.tableGrid = null;
 
 		this.url = '/';
-		this.clearSort = false;
+		this.clearSort = true;
 		this.ajaxData = {
 			params : null,
 			response : null
@@ -35,7 +35,11 @@ class TabulatorBuilder {
 	}
 
 	onError (e) {
-		throw new Error(e);
+		console.warn(e);
+	}
+
+	onReload(){
+		// intentionally empty
 	}
 
 	createPagingInputBox (table, onenter) {
@@ -83,7 +87,8 @@ class TabulatorBuilder {
 	}
 
 	setNewAjaxParameters(params) {
-		return params;
+		this.initialData = params;
+		return this;
 	}
 
 	renderTable(settings) {
@@ -98,16 +103,24 @@ class TabulatorBuilder {
 		this.tableGrid = jQuery('#' + id);
 		const tables = this.tableGrid;
 
-		this.tab.prepend(util.createToolbar(settings.options));
-		this.attachEventToToolbar(settings.options);
+		let tbheight = "100%";
+		if (settings.options !== undefined && settings.options.length > 0) {
+			this.tab.prepend(util.createToolbar(settings.options));
+			this.attachEventToToolbar(settings.options);
+			tbheight = "calc(100% - 25px)";
+		}
 
 		this.addSortForColumnGroups(settings.columns);
 
+		this.onReload = settings.onReload || this.onReload;
+
 		tables.tabulator({
+			keybindings : true,
 			layout : "fitColumns",
-			height : 'calc(100% - 25px)',
+			height : tbheight,
 			columns : settings.columns,
 			selectable : 1,
+			selectablePersistence : false,
 			ajaxConfig : 'GET',
 			ajaxURL : util.url,
 			ajaxParams : util.initialData,
@@ -115,9 +128,12 @@ class TabulatorBuilder {
 				params.start = ((params.page - 1) * params.size) + 1;
 				params.end = params.page * params.size;
 				if (params.sorters.length > 0) {
-					if (!util.clearSort) {
+					if (util.clearSort !== true) {
 						params.sortColumn = params.sorters[0]['field'];
 						params.ascDescFlg = params.sorters[0]['dir'];
+					} else {
+						delete params.sortColumn;
+						delete params.ascDescFlg;
 					}
 					delete params.sorters;
 				}
@@ -126,7 +142,7 @@ class TabulatorBuilder {
 			},
 			ajaxResponse : function(url, params, response) {
 				util.ajaxData.response = response;
-				if (settings.responseCallback){
+				if (typeof settings.responseCallback === 'function'){
 					return settings.responseCallback(url, params, response);
 				} else {
 					return response;
@@ -137,10 +153,28 @@ class TabulatorBuilder {
 			pagination : 'remote',
 			paginationSize : settings.pageSize || 10,
 			rowClick : function (e, row) {
-				settings.rowClick(row, e);
+				const data = row.getData();
+				if (typeof settings.rowClick === 'function'){
+					settings.rowClick(data, e);
+				}
 			},
+			rowSelected:function(row){
+				const data = row.getData();
+				if (typeof settings.rowSelect === 'function'){
+					settings.rowSelect(data, row);
+				}
+		    },
+		    rowDeselected:function(row){
+		    	const data = row.getData();
+		    	if (typeof settings.rowDeselect === 'function'){
+					settings.rowDeselect(data, row);
+				}
+		    },
 			rowDblClick : function (e, row){
-				settings.rowDblClick(row, e);
+				const data = row.getData();
+				if (typeof settings.rowDblClick === 'function') {
+					settings.rowDblClick(data, e);
+				}
 			},
 			tableBuilt : function() {
 				const pagingInfo = util.createPagingInfoBox();
@@ -154,33 +188,44 @@ class TabulatorBuilder {
 				const colGroups = jQuery('.tabulator-col.tabulator-col-group');
 				colGroups.find('>:first-child').append('<div class="tabulator-arrow"></div>');
 				colGroups.addClass('tabulator-sortable');
+				
+				// hide child column headers
+				jQuery('.tabulator-col-group-cols, .tabulator-col-group-cols > div')
+					.css({"visibility" : "hidden", "height" : "1px"});
+				// resize header after hiding child column headers
+				jQuery('.tabulator-col.tabulator-sortable').css({"height" : "23.2px"});
 			},
 			pageLoaded : function(pageNo){
 				tables.find('#pager-num').val(pageNo);
 				util.addFilterMenu();
+
+				const resizehandle = jQuery('.tabulator-col-resize-handle.prev');
+				resizehandle.css({'background' : 'none', 'height' : '0px'});
 			},
 			dataLoaded : function (data) {
 				util.setPagingInfo(data.length);
-				if (settings.dataLoaded) {
+				if (typeof settings.dataLoaded === 'function') {
 					settings.dataLoaded(data);
 				}
 			}
 		});
 
-		if (settings.onError) {
+		if (typeof settings.onError === 'function') {
 			this.onError = settings.onError;
 		}
 	}
 
 	addFilterMenu () {
 		const filters = this.ajaxData.response.filters;
-		if (this.tab.find('.dtbl-filter-list option').length > 0) {
-			return false;
-		}
-		for (const filter of filters){
-			const option = '<option value="' + filter.key+'" filter-type="' + filter.filterType + '">'
-				+ filter.optName + '</option>';
-			this.tab.find('.dtbl-filter-list').append(option);
+		if (filters) {
+			if (this.tab.find('.dtbl-filter-list option').length > 0) {
+				return false;
+			}
+			for (const filter of filters){
+				const option = '<option value="' + filter.key+'" filter-type="' + filter.filterType + '">'
+					+ filter.optName + '</option>';
+				this.tab.find('.dtbl-filter-list').append(option);
+			}
 		}
 	}
 
@@ -226,6 +271,9 @@ class TabulatorBuilder {
 		return rows;
 	}
 
+	getLoadedRows() {
+		return this.tableGrid.tabulator("getRows");
+	}
 	/**
 	 * retrieve all rows selected
 	 * */
@@ -236,6 +284,15 @@ class TabulatorBuilder {
 			rowData.push(data.row.data);
 		}
 		return rowData;
+	}
+
+	deselectRow(rowIndex){
+		const row = this.isEmpty(rowIndex) ? null : rowIndex;
+		if (row !== null) {
+			this.tableGrid.tabulator('deselectRow', row);
+		} else {
+			this.tableGrid.tabulator('deselectRow');
+		}
 	}
 
 	/**
@@ -249,11 +306,12 @@ class TabulatorBuilder {
 		Object.assign(data, initData);
 		Object.assign(data, filters);
 		Object.assign(data, added);
-		this.clearSort = clearSort || false;
+		this.clearSort = clearSort || true;
 		if (clearSort === true) {
 			this.resetSortForColumnGroups();
 		}
 		this.tableGrid.tabulator('setData', this.url, data);
+		this.onReload();
 	}
 
 	createToolbar (options) {
@@ -358,24 +416,27 @@ class TabulatorBuilder {
 
 	validateAddedFilter (filter) {
 		const builder = this;
-
-		jQuery.ajax({
-			method : 'GET',
-			url : 'validate-field',
-			data : {
-				filter : filter.dspText,
-				filterType : filter.type,
-				keyword : filter.keyword
-			},
-			success : function (data) {
-				if (data === 'valid') {
-					builder.addToFilters(filter);
+		try {
+			jQuery.ajax({
+				method : 'GET',
+				url : 'validate-field',
+				data : {
+					filter : filter.dspText,
+					filterType : filter.type,
+					keyword : filter.keyword
+				},
+				success : function (data) {
+					if (data === 'valid') {
+						builder.addToFilters(filter);
+					}
+				},
+				error : function (jqXHR){
+					builder.onError(jqXHR);
 				}
-			},
-			error : function (jqXHR){
-				builder.onError(jqXHR);
-			}
-		});
+			});
+		} catch (e) {
+			throw new Error(e);
+		}
 	}
 
 	addFilter () {
@@ -410,7 +471,7 @@ class TabulatorBuilder {
 }
 
 
-class TableHTMLFactory {
+class HTMLFactory {
 	constructor() {
 		this.elements = {
 			'checkbox' : 'CellCheckBox'
@@ -418,18 +479,39 @@ class TableHTMLFactory {
 	}
 
 	static cellCheckBox (cell, params) {
-		const rowData = cell.cell.row.data;
+		const row = cell.getRow();
+		const rowData = row.getData();
 		const newCbx = document.createElement('input');
-		newCbx.id = params.id || '';
+		newCbx.id = params.id;
 		newCbx.type = 'checkbox';
 		newCbx.classList = params.classes || '';
-		newCbx.checked = params.tagged(rowData);
-		newCbx.onclick = function (event) {
-			params.onclick(data, event);
-		};
+		
+		if (typeof params.tagged === "function") {
+			newCbx.checked = params.tagged(rowData, cell);
+		}			
+		
+		if (typeof params.onclick === "function") {
+			newCbx.onclick = function (event) {
+				params.onclick(rowData, cell, event);
+			};
+		}
 
 		return newCbx;
 	}
 
+	static cellRadioButton (cell, params) {
+		const row = cell.getRow();
+		const rowData = row.getData();
+		const newRdb = document.createElement('input');
+		newRdb.type = 'radio';
+		newRdb.name = params.name + row.getPosition();
+		newRdb.checked = params.tagged(rowData);
+		newRdb.onclick = function (event) {
+			// use row.update({'object name' : 'value'}) to update values
+			params.onclick(rowData, row, event);
+		};
+
+		return newRdb;
+	}
 	// add other html input elements here
 }

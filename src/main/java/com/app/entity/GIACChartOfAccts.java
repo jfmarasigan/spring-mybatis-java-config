@@ -1,6 +1,6 @@
 package com.app.entity;
 
-public class GIACChartOfAccts {
+public class GIACChartOfAccts extends TabulatorResponse {
 	private String glAcctId;
 	private String glAcctName;
 	private String glAcctCategory;
@@ -19,16 +19,6 @@ public class GIACChartOfAccts {
 	private String drCrTag;
 	private String acctType;
 	private String refAcctCd;
-
-	private Integer totalRecords;
-	
-	public Integer getTotalRecords() {
-		return totalRecords;
-	}
-
-	public void setTotalRecords(Integer totalRecords) {
-		this.totalRecords = totalRecords;
-	}
 
 	public String getGlAcctId() {
 		return glAcctId;
@@ -163,7 +153,9 @@ public class GIACChartOfAccts {
 	}
 
 	public void setRefAcctCd(String refAcctCd) {
-		this.refAcctCd = refAcctCd;
+		this.refAcctCd = refAcctCd;	
 	}
+	
+	
 
 }

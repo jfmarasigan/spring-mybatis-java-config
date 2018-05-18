@@ -7,9 +7,40 @@ function numLpad(number, minDigits) {
 	});
 }
 
+//sample for tagging records manually (not using tagged / onclick functions of HTMLFactory.cellCheckBox)
+//sample will be using builder.getLoadedRows()
+function sampleTagging(rows){
+	for (const row of rows) {
+		const rowElem = row.getCell("tag").getElement();
+		const rowData = row.getData();
+		if (rowData.glSubAcct1 === "1") {
+			rowElem.find(".cbx-tag").attr("checked", true);
+		}
+	}
+	return true;
+}
+
 var settings = {
 	url : 'giacs311/tb-giacs311',
 	columns : [ {
+		title: 'cbx',
+		field : 'tag',
+		align : 'center',
+		width : 30,
+		minWidth : 20,
+		formatter : function (cell, formatterParams) {
+			return HTMLFactory.cellCheckBox(cell, {
+				classes : "cbx-tag",
+				/*tagged : function (data) {
+					return data.glSubAcct1 === "1";
+				},*/
+				onclick : function (data, cell) {
+					console.log(cell.getColumn());
+				}
+			});
+		}
+	},
+	{
 		title : 'GL Account Code',
 		field : 'glAcctCode',
 		width : 310,
@@ -35,6 +66,9 @@ var settings = {
 			minWidth : 20,
 			headerSort : false,
 			formatter : function(cell, formatterParams) {
+				let row = cell.getRow();
+				/*console.log(row);
+				console.log(row.getPosition());*/
 				return numLpad(parseInt(cell.getValue()), 2);
 			}
 		}, {
@@ -91,11 +125,11 @@ var settings = {
 			formatter : function(cell, formatterParams) {
 				return numLpad(parseInt(cell.getValue()), 2);
 			}
-		} ],
+		} ]/*,
 		headerClick : function() {
 			console.log(this.title + ' ' + this.field);
 			$('.tabulator-col.tabulator-col-group')
-		}
+		}*/
 	}, {
 		title : 'GL Account Name',
 		field : 'glAcctName',
