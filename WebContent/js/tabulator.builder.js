@@ -12,11 +12,12 @@ class TabulatorBuilder {
 		this.tableGrid = null;
 
 		this.url = '/';
-		this.clearSort = true;
-		this.ajaxData = {
-			params : null,
-			response : null
-		};
+		this.hasGroupColumns = false;
+		this.clearSort = false;
+		this.headerEvent = { forRequest : true };
+		this.ajaxData = { params : null, response : null };
+		this.sortData = { colTitle : "", sortCol : "", dir : "", isManualSort : false };
+		this.persistence = { data : {} };
 
 		this.initialData = {};
 		this.filters = {};
@@ -34,8 +35,9 @@ class TabulatorBuilder {
 		return Object.keys(obj).length === 0 && obj.constructor === Object;
 	}
 
-	onError (e) {
-		console.warn(e);
+	onError (message) {
+		// replace this later if showMessageBox is not using prototypejs anymore
+		showMessageBox(message, imgMessage.ERROR);
 	}
 
 	onReload(){
@@ -82,7 +84,10 @@ class TabulatorBuilder {
 			console.warn('Total count does not exist. Check the response if there is a count reponse parameter.');
 		}
 
-		const infoMsg = 'Showing ' + start + ' to ' + end + ' of ' + totalCount + ' records';
+		let infoMsg = 'Showing ' + start + ' to ' + end + ' of ' + totalCount + ' records';
+		if (count === 0) {
+			infoMsg = 'No records found';
+		}
 		this.tab.find('#pager-info').html(infoMsg);
 	}
 
@@ -110,12 +115,18 @@ class TabulatorBuilder {
 			tbheight = "calc(100% - 25px)";
 		}
 
-		this.addSortForColumnGroups(settings.columns);
+		this.checkForGroupColumns(settings.columns);
+
+		if (util.hasGroupColumns === true) {
+			this.addSortForColumns(settings.columns);
+		}
 
 		this.onReload = settings.onReload || this.onReload;
 
 		tables.tabulator({
 			keybindings : true,
+			tooltipsHeader : true,
+			placeholder : "No Records Found",
 			layout : "fitColumns",
 			height : tbheight,
 			columns : settings.columns,
@@ -125,20 +136,29 @@ class TabulatorBuilder {
 			ajaxURL : util.url,
 			ajaxParams : util.initialData,
 			ajaxRequesting : function(url, params) {
-				params.start = ((params.page - 1) * params.size) + 1;
-				params.end = params.page * params.size;
-				if (params.sorters.length > 0) {
+				if (util.headerEvent.forRequest === true || util.hasGroupColumns === false) {
+					params.start = ((params.page - 1) * params.size) + 1;
+					params.end = params.page * params.size;
 					if (util.clearSort !== true) {
-						params.sortColumn = params.sorters[0]['field'];
-						params.ascDescFlg = params.sorters[0]['dir'];
+						if (params.sorters.length > 0 && util.sortData.isManualSort === false) {
+							params.sortColumn = params.sorters[0]['field'];
+							const dir = util.getSortDir(params.sortColumn);
+							params.ascDescFlg = dir;
+						}
+						if (util.sortData.isManualSort === true) {
+							params.sortColumn = util.sortData.sortCol;
+							params.ascDescFlg = util.sortData.dir;
+						}
 					} else {
-						delete params.sortColumn;
-						delete params.ascDescFlg;
+						util.clearSort = false;
 					}
 					delete params.sorters;
+					util.ajaxData.params = params;
+					util.headerEvent.forRequest = false;
+					return util.ajaxData.params;
+				} else {
+					return false;
 				}
-				util.ajaxData.params = params;
-				return params;
 			},
 			ajaxResponse : function(url, params, response) {
 				util.ajaxData.response = response;
@@ -177,6 +197,7 @@ class TabulatorBuilder {
 				}
 			},
 			tableBuilt : function() {
+				util.addEventToPager();
 				const pagingInfo = util.createPagingInfoBox();
 				const pagingInput = util.createPagingInputBox(tables, function (tab, value){
 					tab.tabulator('setPage', parseInt(value));
@@ -188,31 +209,70 @@ class TabulatorBuilder {
 				const colGroups = jQuery('.tabulator-col.tabulator-col-group');
 				colGroups.find('>:first-child').append('<div class="tabulator-arrow"></div>');
 				colGroups.addClass('tabulator-sortable');
-				
-				// hide child column headers
-				jQuery('.tabulator-col-group-cols, .tabulator-col-group-cols > div')
-					.css({"visibility" : "hidden", "height" : "1px"});
-				// resize header after hiding child column headers
-				jQuery('.tabulator-col.tabulator-sortable').css({"height" : "23.2px"});
 			},
 			pageLoaded : function(pageNo){
 				tables.find('#pager-num').val(pageNo);
 				util.addFilterMenu();
-
-				const resizehandle = jQuery('.tabulator-col-resize-handle.prev');
-				resizehandle.css({'background' : 'none', 'height' : '0px'});
 			},
 			dataLoaded : function (data) {
 				util.setPagingInfo(data.length);
 				if (typeof settings.dataLoaded === 'function') {
 					settings.dataLoaded(data);
 				}
-			}
+			},
+			dataSorted : function () {
+				util.tableGrid.tabulator("redraw");
+			},
+			renderComplete : function(){
+				util.tableGrid.tabulator("redraw");
+				if (util.hasGroupColumns === true) {
+					jQuery(".tabulator-col.tabulator-sortable")
+					.not('[title="'+ util.sortData.colTitle +'"]')
+					.attr("aria-sort", "none");
+
+					if (util.sortData.isManualSort === false) {
+						jQuery(".tabulator-col.tabulator-sortable[title='" + util.sortData.colTitle +"']")
+						.attr("aria-sort", util.sortData.dir);
+					}
+				}
+		    }
 		});
 
 		if (typeof settings.onError === 'function') {
 			this.onError = settings.onError;
 		}
+	}
+
+	checkForGroupColumns(columns) {
+		const builder = this;
+		for (const col of columns) {
+			if (col.columns !== undefined && col.columns.length > 0){
+				builder.hasGroupColumns = true;
+				break;
+			}
+		}
+	}
+
+	addEventToPager () {
+		const builder = this;
+		this.tab.find('.tabulator-page').mousedown(function() {
+			builder.headerEvent.forRequest = true;
+		});
+	}
+
+	// not used but kept in case if css doesn't work
+	resizeHeaders () {
+		// hide child column headers
+		jQuery('.tabulator-col-group-cols, .tabulator-col-group-cols > div')
+			.css({"visibility" : "hidden", "height" : "1px"});
+		// resize header after hiding child column headers
+		jQuery('.tabulator-col.tabulator-sortable').css({"height" : "23.2px"});
+	}
+
+	// remove css from calendar
+	removeArrows () {
+		const resizehandle = jQuery('.tabulator-col-resize-handle.prev');
+		resizehandle.css({'background' : 'none', 'height' : '0px'});
 	}
 
 	addFilterMenu () {
@@ -229,36 +289,61 @@ class TabulatorBuilder {
 		}
 	}
 
-	addSortForColumnGroups(columns) {
-		const builder = this;
-
-		for (const data of columns){
-			if (data.columns !== undefined && data.columns.length > 0) {
-				data.headerClick = function () {
-					const header = jQuery('.tabulator-col.tabulator-col-group[aria-title="'+ this.title +'"]');
-					const sort = header.attr('aria-sort');
-					if (['none', 'asc', 'desc'].indexOf(sort) !== -1) {
-						if (sort === 'asc') {
-							header.attr('aria-sort','desc');
-							builder.reload({sortColumn : this.field, ascDescFlg : 'desc'});
-						} else {
-							header.attr('aria-sort','asc');
-							builder.reload({sortColumn : this.field, ascDescFlg : 'asc'});
-						}
-					}
-				};
+	// for non column groups sort direction
+	getSortDir(field) {
+		const header = $j(".tabulator-col.tabulator-sortable[tabulator-field='" + field + "']");
+		const sort = header.attr("aria-sort");
+		if (['none', 'asc', 'desc'].indexOf(sort) !== -1) {
+			if (sort === 'asc') {
+				return "desc";
+			} else {
+				return "asc";
 			}
 		}
 	}
 
-	resetSortForColumnGroups(){
-		jQuery('.tabulator-col.tabulator-col-group').attr('aria-sort', 'none');
+	addSortForColumns(columns) {
+		const builder = this;
+
+		function sortCol(sort, field, header) {
+			builder.sortData.dir = sort;
+			builder.sortData.isManualSort = true;
+			builder.reload();
+			header.attr('aria-sort', sort);
+		}
+
+		function headerEv (data) {
+			builder.headerEvent.forRequest = true;
+			if (data.title !== builder.sortData.colTitle) {
+				builder.sortData = { colTitle : "", sortCol : "", dir : "", isManualSort : false };
+			}
+			const header = jQuery('.tabulator-col.tabulator-sortable[title="'+ data.title +'"]');
+			const sort = header.attr('aria-sort');
+			builder.sortData.colTitle = data.title;
+			builder.sortData.sortCol = data.field;
+			if (data.columns !== undefined && data.columns.length > 0) {
+				if (['none', 'asc', 'desc'].indexOf(sort) !== -1) {
+					if (sort === 'asc') {
+						sortCol("desc", data.field, header);
+					} else {
+						sortCol("asc", data.field, header);
+					}
+				}
+			} else {
+				builder.sortData.dir = builder.getSortDir(data.field);
+				builder.reload();
+			}
+		}
+
+		for (const data of columns){
+			data.headerClick = headerEv.bind(null, data);
+		}
 	}
 
 	/**
 	 * retrieve all rows in the current page
 	 * */
-	getCurrentRows() {
+	getCurrentRowsData() {
 		const rows = {
 			length : 0,
 			rows : []
@@ -274,14 +359,18 @@ class TabulatorBuilder {
 	getLoadedRows() {
 		return this.tableGrid.tabulator("getRows");
 	}
+
 	/**
 	 * retrieve all rows selected
 	 * */
 	getSelectedRow() {
 		const selected = this.tableGrid.tabulator('getSelectedRows');
-		const rowData = [];
+		let rowData = [];
 		for (const data of selected) {
 			rowData.push(data.row.data);
+		}
+		if (rowData.length === 1) {
+			rowData = rowData[0];
 		}
 		return rowData;
 	}
@@ -298,20 +387,32 @@ class TabulatorBuilder {
 	/**
 	 * reloads / refreshes the current table with or without additional data
 	 * */
-	reload (addtlData, clearSort) {
+	reload (addtlData, clearSort, persistence) {
+		const builder = this;
 		const data = {};
-		const initData = this.initialData;
-		const filters = this.getFilters();
+		const initData = builder.initialData;
+		const filters = builder.getFilters();
 		const added = addtlData || {};
+
+		if (persistence !== undefined) {
+			if (persistence.clearPrevious === true) {
+				builder.persistence.data = addtlData;
+			} else {
+				Object.assign(builder.persistence.data, addtlData);
+			}
+		}
+
+		Object.assign(data, builder.persistence.data);
 		Object.assign(data, initData);
 		Object.assign(data, filters);
 		Object.assign(data, added);
-		this.clearSort = clearSort || true;
 		if (clearSort === true) {
-			this.resetSortForColumnGroups();
+			builder.sortData = { colTitle : "", sortCol : "", dir : "", isManualSort : false };
+			builder.clearSort = true;
 		}
-		this.tableGrid.tabulator('setData', this.url, data);
-		this.onReload();
+		builder.headerEvent.forRequest = true;
+		builder.tableGrid.tabulator('setData', this.url, data);
+		builder.onReload();
 	}
 
 	createToolbar (options) {
@@ -378,8 +479,14 @@ class TabulatorBuilder {
 			});
 
 			table.find('.dtbl-filter-entry').keydown(function (event) {
-				if (event.keyCode === 13 && this.value.trim() !== ''){
-					builder.addFilter();
+				if (event.keyCode === 13){
+					if (this.value.trim() !== "") {
+						builder.addFilter();
+					} else {
+						if (!builder.isEmptyObject(builder.filters)){
+							builder.submitFilter();
+						}
+					}
 				}
 			});
 
@@ -419,7 +526,7 @@ class TabulatorBuilder {
 		try {
 			jQuery.ajax({
 				method : 'GET',
-				url : 'validate-field',
+				url : 'util/validate-field',
 				data : {
 					filter : filter.dspText,
 					filterType : filter.type,
@@ -431,7 +538,7 @@ class TabulatorBuilder {
 					}
 				},
 				error : function (jqXHR){
-					builder.onError(jqXHR);
+					builder.onError(jqXHR.responseText);
 				}
 			});
 		} catch (e) {
@@ -456,10 +563,19 @@ class TabulatorBuilder {
 	}
 
 	submitFilter () {
-		if (!this.isEmptyObject(this.filters)){
-			this.reload();
-		}
 		const table = this.tab;
+
+		if (!this.isEmptyObject(this.filters)){
+			table.find(".dtbl-filter-btn").removeClass('dtbl-filter-btn-bg').addClass('dtbl-filter-btn-active');
+			this.reload();
+		} else {
+			table.find(".dtbl-filter-btn").removeClass('dtbl-filter-btn-active').addClass('dtbl-filter-btn-bg');
+			if (this.clearedFilters === true) {
+				this.reload();
+				this.clearedFilters = false;
+			}
+		}
+
 		table.find('.dtbl-filter-menu').toggle();
 	}
 
@@ -467,6 +583,7 @@ class TabulatorBuilder {
 		this.filters = {};
 		this.tab.find('.dtbl-filter-text-list').val('');
 		thisBtn.disabled = true;
+		this.clearedFilters = true;
 	}
 }
 
@@ -482,19 +599,16 @@ class HTMLFactory {
 		const row = cell.getRow();
 		const rowData = row.getData();
 		const newCbx = document.createElement('input');
-		newCbx.id = params.id;
+		newCbx.id = params.id || '';
 		newCbx.type = 'checkbox';
 		newCbx.classList = params.classes || '';
-		
+		newCbx.disabled = params.disabled || false;
 		if (typeof params.tagged === "function") {
-			newCbx.checked = params.tagged(rowData, cell);
-		}			
-		
-		if (typeof params.onclick === "function") {
-			newCbx.onclick = function (event) {
-				params.onclick(rowData, cell, event);
-			};
+			newCbx.checked = params.tagged(rowData);
 		}
+		newCbx.onclick = function (event) {
+			params.onclick(rowData, event);
+		};
 
 		return newCbx;
 	}
@@ -505,6 +619,7 @@ class HTMLFactory {
 		const newRdb = document.createElement('input');
 		newRdb.type = 'radio';
 		newRdb.name = params.name + row.getPosition();
+		newRdb.disabled = params.disabled || false;
 		newRdb.checked = params.tagged(rowData);
 		newRdb.onclick = function (event) {
 			// use row.update({'object name' : 'value'}) to update values

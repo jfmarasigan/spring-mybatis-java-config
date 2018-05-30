@@ -226,6 +226,7 @@
 			dataType : 'json',
 			dataSrc : function(json){
 				var data = JSON.parse(json.rows);
+				console.log(json.bool);
 				return Array.isArray(data) ? data : [data];
 			}
 		},

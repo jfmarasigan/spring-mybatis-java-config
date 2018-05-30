@@ -16,9 +16,11 @@ public class RootConfig {
 		SimpleDriverDataSource dataSource = new SimpleDriverDataSource();
 
 		dataSource.setDriverClass(OracleDriver.class);
-		dataSource.setUrl("jdbc:oracle:thin:@localhost:1521:BASEDANIEL");
+		//dataSource.setUrl("jdbc:oracle:thin:@localhost:1521:BASEDANIEL");
+		dataSource.setUrl("jdbc:oracle:thin:@192.10.10.107:1521:UCPBGEN");
 		dataSource.setUsername("CPI");
-		dataSource.setPassword("CPI12345!!");
+		//dataSource.setPassword("CPI12345!!");
+		dataSource.setPassword("CPI12345!");
 
 		return dataSource;
 	}

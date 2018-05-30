@@ -110,3 +110,7 @@ console.log('2');
 tab.tabulator('setFilter', 'userId', '=', 'cpi'); // triggers ajax request
 console.log('3');
  */
+
+let settings2 = {
+	
+}

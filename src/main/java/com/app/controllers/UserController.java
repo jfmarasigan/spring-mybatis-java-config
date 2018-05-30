@@ -72,6 +72,7 @@ public class UserController {
 		root.put("recordsFiltered", service.getTotalRecords(users));
 		root.put("rows", JSON_MAPPER.writeValueAsString(users));
 		root.put("filters", JSON_MAPPER.writeValueAsString(UsersFilters.values()));
+		root.put("bool", false);
 		return new ResponseEntity<>(JSON_MAPPER.writeValueAsString(root), HttpStatus.OK);
 	}
 	

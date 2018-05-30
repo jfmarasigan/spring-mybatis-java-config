@@ -13,7 +13,7 @@
 			}
 			
 			#sample-table, #sample-table2 {
-				width: 700px;
+				width: 650px;
 				height: 300px;
 				/* border: 1px solid black; */
 			}

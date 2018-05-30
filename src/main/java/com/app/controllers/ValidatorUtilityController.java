@@ -10,6 +10,7 @@ import com.app.service.ValidatorUtility;
 import com.app.tablefilters.FieldTypes;
 
 @Controller
+@RequestMapping(value = { "util" })
 public class ValidatorUtilityController {
 
 	private ValidatorUtility service;

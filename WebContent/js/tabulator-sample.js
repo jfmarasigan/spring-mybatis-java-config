@@ -9,9 +9,9 @@ function numLpad(number, minDigits) {
 
 //sample for tagging records manually (not using tagged / onclick functions of HTMLFactory.cellCheckBox)
 //sample will be using builder.getLoadedRows()
-function sampleTagging(rows){
-	for (const row of rows) {
-		const rowElem = row.getCell("tag").getElement();
+function sampleTagging(loadedRows){
+	for (const row of loadedRows) {
+		const rowElem = row.getCell("tag").getElement(); // "tag" = field
 		const rowData = row.getData();
 		if (rowData.glSubAcct1 === "1") {
 			rowElem.find(".cbx-tag").attr("checked", true);
@@ -28,6 +28,7 @@ var settings = {
 		align : 'center',
 		width : 30,
 		minWidth : 20,
+		headerSort : false,
 		formatter : function (cell, formatterParams) {
 			return HTMLFactory.cellCheckBox(cell, {
 				classes : "cbx-tag",
@@ -40,7 +41,7 @@ var settings = {
 			});
 		}
 	},
-	{
+	/*{
 		title : 'GL Account Code',
 		field : 'glAcctCode',
 		width : 310,
@@ -67,8 +68,8 @@ var settings = {
 			headerSort : false,
 			formatter : function(cell, formatterParams) {
 				let row = cell.getRow();
-				/*console.log(row);
-				console.log(row.getPosition());*/
+				console.log(row);
+				console.log(row.getPosition());
 				return numLpad(parseInt(cell.getValue()), 2);
 			}
 		}, {
@@ -125,12 +126,21 @@ var settings = {
 			formatter : function(cell, formatterParams) {
 				return numLpad(parseInt(cell.getValue()), 2);
 			}
-		} ]/*,
+		} ],
 		headerClick : function() {
 			console.log(this.title + ' ' + this.field);
 			$('.tabulator-col.tabulator-col-group')
-		}*/
-	}, {
+		}
+	}, */
+	{
+		title : "GL Acct Category",
+		field : 'glAcctCategory',
+		align : 'right',
+		width : 200,
+		minWidth : 20,
+		headerSort : false
+	},
+	{
 		title : 'GL Account Name',
 		field : 'glAcctName',
 		width : 400
@@ -142,9 +152,9 @@ var settings = {
 	responseCallback : function(url, params, response) {
 		/*console.log('response callback');
 		console.log(url);
-		console.log(params);
-		console.log(response);*/
-
+		console.log(params);*/
+		console.log(response.testBoolean);
+		console.log(typeof response.testBoolean);
 		return response;
 	},
 	dataLoaded : function(data) {

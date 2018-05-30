@@ -31,16 +31,21 @@ public class GIACS311Controller {
 		this.service = service;
 	}
 
+	@RequestMapping(value = { "test-boolean" })
+	public ResponseEntity<Boolean> testBoolean() {
+		return new ResponseEntity<>(false, HttpStatus.OK);
+	}
+
 	@RequestMapping(value = { "show-giacs311" })
 	public ResponseEntity<String> getGIACS311(GIACS311DTParams params) throws JsonProcessingException {
 		ObjectNode root = JsonNodeFactory.instance.objectNode();
 		List<GIACChartOfAccts> users = service.getGIACS311(params);
 
 		Integer recordCount = service.getTotalRecords(users);
-		
+
 		DataTableResponseEntity<GIACChartOfAccts, GIACS311TGFilters> dtre = new DataTableResponseEntity<>(
 				params.getDraw(), recordCount, recordCount, users, GIACS311TGFilters.values());
-		
+
 		root.setAll(dtre.toJSONNode());
 
 		return new ResponseEntity<>(MAPPER.writeValueAsString(root), HttpStatus.OK);
@@ -50,14 +55,15 @@ public class GIACS311Controller {
 	public ResponseEntity<String> giacs311(GIACS311DTParams params) throws JsonProcessingException {
 		ObjectNode root = JsonNodeFactory.instance.objectNode();
 		List<GIACChartOfAccts> users = service.getGIACS311(params);
-		
+
 		root.put("count", service.getTotalRecords(users));
 		ArrayNode data = MAPPER.valueToTree(users);
 		root.putArray("data").addAll(data);
 		ArrayNode filters = MAPPER.valueToTree(GIACS311TGFilters.values());
 		root.putArray("filters").addAll(filters);
 		root.put("last_page", 295);
-		
+		root.put("testBoolean", false);
+
 		return new ResponseEntity<>(MAPPER.writeValueAsString(root), HttpStatus.OK);
 	}
 }
